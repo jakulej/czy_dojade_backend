@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+        id: example-create
+        author: Kuba
+        changes:
+          - createTable:
+              tableName: employee
+              columns:
+                - column:
+                    name: id
+                    type: BIGSERIAL
+                    autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                - column:
+                    name: name
+                    type: varchar(255)
+                    constraints:
+                      nullable: false
+
+  - changeSet:
+      id: example-alter
+      author: Kuba
+      changes:
+        - addColumn:
+            tableName: employee
+            columns:
+              - column:
+                  name: age
+                  type: int
+                  constraints:
+                    nullable: false
