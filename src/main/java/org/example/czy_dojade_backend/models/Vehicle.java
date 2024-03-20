@@ -25,8 +25,7 @@ public class Vehicle {
     @Column(name = "current_longitude")
     private double currentLongitude;
 
-    @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
-    @OneToMany
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Trip> trip;
 
 }

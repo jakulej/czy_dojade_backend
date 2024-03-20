@@ -1,9 +1,12 @@
 package org.example.czy_dojade_backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,10 +23,15 @@ public class Report {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "time_of_report")
+    private LocalDateTime timeOfReport;
+
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
-    //  połączenia do linii tramwajowych i do czasu stłuczki
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "accident_id", referencedColumnName = "id", nullable = false)
+    private Accident accident;
 
 }

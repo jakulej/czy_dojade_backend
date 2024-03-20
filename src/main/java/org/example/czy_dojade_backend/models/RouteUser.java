@@ -13,15 +13,15 @@ import lombok.NoArgsConstructor;
 public class RouteUser {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @ManyToOne
-    @MapsId("routeId")
     @JoinColumn(name = "route_id")
     private Route route;
 
     @ManyToOne
-    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 

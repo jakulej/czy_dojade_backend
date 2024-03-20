@@ -33,7 +33,7 @@ public class Stop {
     private float longitude;
 
     @JoinColumn(name = "stop_times")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "stop", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StopTime> stopTimes;
 
 }

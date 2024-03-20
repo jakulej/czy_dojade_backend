@@ -29,7 +29,6 @@ public class RouteType {
 
     @JoinColumn(name = "route_id")
     @OneToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<Route> routes;
 
 }

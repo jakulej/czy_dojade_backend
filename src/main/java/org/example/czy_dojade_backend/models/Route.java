@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -29,15 +30,8 @@ public class Route {
     @Column(name = "description")
     private String description;
 
-    @JoinColumn(name = "route_id", referencedColumnName = "id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
-    private RouteType routeType;
-
-    @JoinColumn(name = "route_id", referencedColumnName = "id", nullable = false)
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Trip> trips;
-
-    // @JoinTable with route user still left
 
 }

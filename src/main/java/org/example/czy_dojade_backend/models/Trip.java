@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,5 +34,11 @@ public class Trip {
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private Vehicle vehicle;
+
+    @OneToOne(mappedBy = "trip", cascade = CascadeType.ALL)
+    private Accident accident;
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StopTime> stopTimes;
 
 }

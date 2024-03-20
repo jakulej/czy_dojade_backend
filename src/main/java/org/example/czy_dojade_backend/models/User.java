@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -38,4 +39,12 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     @JsonIgnore
     private List<Report> reports;
+
+    @ManyToMany
+    @JoinTable(
+            name = "route_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "route_id"))
+    private Set<Route> favouriteRoutes;
+
 }

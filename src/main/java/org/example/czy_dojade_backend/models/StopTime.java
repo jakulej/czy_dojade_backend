@@ -27,10 +27,12 @@ public class StopTime {
     @Column(name = "departure_time")
     private LocalDateTime departureTime;
 
-    @JoinColumn(name = "stop_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private Stop stop;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Trip trip;
 
 }
 
