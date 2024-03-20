@@ -34,4 +34,7 @@ public class Route {
     @JsonIgnore
     private List<Trip> trips;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private RouteType routeType;
+
 }

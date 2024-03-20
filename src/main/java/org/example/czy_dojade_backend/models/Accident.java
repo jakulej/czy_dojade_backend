@@ -32,7 +32,7 @@ public class Accident {
     @Column(name = "time_of_accident")
     private LocalDateTime timeOfAccident;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "accident", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Report> reports;
 
     @OneToOne(fetch = FetchType.LAZY)

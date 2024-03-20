@@ -1,263 +1,311 @@
 databaseChangeLog:
-  - changeSet:
-      id: create-accident-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: accident
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: acc_latitude
-                  type: DOUBLE
-              - column:
-                  name: acc_longitude
-                  type: DOUBLE
-              - column:
-                  name: is_verified
-                  type: BOOLEAN
-              - column:
-                  name: time_of_accident
-                  type: TIMESTAMP
-  - changeSet:
-      id: create-report-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: report
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: description
-                  type: VARCHAR(255)
-              - column:
-                  name: time_of_report
-                  type: TIMESTAMP
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: accident_id
-                  type: BIGINT
-  - changeSet:
-      id: create-route-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: route
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: short_name
-                  type: VARCHAR(255)
-              - column:
-                  name: long_name
-                  type: VARCHAR(255)
-              - column:
-                  name: description
-                  type: VARCHAR(255)
-  - changeSet:
-      id: create-route-type-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: route_type
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: type
-                  type: VARCHAR(255)
-  - changeSet:
-      id: create-route-user-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: route_user
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: route_id
-                  type: BIGINT
-              - column:
-                  name: user_id
-                  type: BIGINT
-  - changeSet:
-      id: create-stop-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: stop
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: code
-                  type: VARCHAR(255)
-              - column:
-                  name: name
-                  type: VARCHAR(255)
-              - column:
-                  name: latitude
-                  type: FLOAT
-              - column:
-                  name: longitude
-                  type: FLOAT
-  - changeSet:
-      id: create-stop-time-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: stop_time
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: arrival_time
-                  type: TIMESTAMP
-              - column:
-                  name: departure_time
-                  type: TIMESTAMP
-              - column:
-                  name: stop_id
-                  type: BIGINT
-              - column:
-                  name: trip_id
-                  type: BIGINT
-  - changeSet:
-      id: create-trip-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: trip
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: trip_headsign
-                  type: VARCHAR(255)
-              - column:
-                  name: direction_id
-                  type: INT
-              - column:
-                  name: route_id
-                  type: BIGINT
-              - column:
-                  name: vehicle_id
-                  type: BIGINT
-              - column:
-                  name: accident_id
-                  type: BIGINT
-        - addForeignKeyConstraint:
-            baseTableName: trip
-            baseColumnNames:
-              - route_id
-            constraintName: fk_trip_route
-            referencedTableName: route
-            referencedColumnNames:
-              - id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-        - addForeignKeyConstraint:
-            baseTableName: trip
-            baseColumnNames:
-              - vehicle_id
-            constraintName: fk_trip_vehicle
-            referencedTableName: vehicle
-            referencedColumnNames:
-              - id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-        - addForeignKeyConstraint:
-            baseTableName: trip
-            baseColumnNames:
-              - accident_id
-            constraintName: fk_trip_accident
-            referencedTableName: accident
-            referencedColumnNames:
-              - id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-  - changeSet:
-      id: create-app-user-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: app_user
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: username
-                  type: VARCHAR(255)
-              - column:
-                  name: password
-                  type: VARCHAR(255)
-              - column:
-                  name: email
-                  type: VARCHAR(255)
-              - column:
-                  name: first_name
-                  type: VARCHAR(255)
-              - column:
-                  name: last_name
-                  type: VARCHAR(255)
-  - changeSet:
-      id: create-vehicle-table
-      author: Kuba
-      changes:
-        - createTable:
-            tableName: vehicle
-            columns:
-              - column:
-                  name: id
-                  type: BIGSERIAL
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: current_latitude
-                  type: DOUBLE
-              - column:
-                  name: current_longitude
-                  type: DOUBLE
+    - changeSet:
+        id: create_tables
+        author: Kuba
+#databaseChangeLog:
+#  - changeSet:
+#      id: create_tables
+#      author: Kuba
+#      changes:
+#
+#        - createTable:
+#            tableName: vehicle
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: current_latitude
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: current_longitude
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: route_type
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: type
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: route
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: short_name
+#                  type: VARCHAR(100)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: long_name
+#                  type: VARCHAR(100)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: description
+#                  type: VARCHAR(255)
+#                  defaultValue: "No description available"
+#              - column:
+#                  name: route_type_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: app_user
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: username
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: password
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: email
+#                  type: VARCHAR(100)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: first_name
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: last_name
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: stop
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: code
+#                  type: VARCHAR(50)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: name
+#                  type: VARCHAR(100)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: latitude
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: longitude
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: stop_time
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: arrival_time
+#                  type: timestamp
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: departure_time
+#                  type: timestamp
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: stop_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: trip_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: report
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  autoIncrement: true
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: description
+#                  type: VARCHAR(255)
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: time_of_report
+#                  type: timestamp
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: user_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: accident_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#
+#        - createTable:
+#            tableName: accident
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  autoIncrement: true
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: acc_latitude
+#                  type: double
+#                  constraints:
+#                    nullable: false
+#
+#              - column:
+#                  name: accident_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: true
+#
+#        - createTable:
+#            tableName: route_user
+#            columns:
+#              - column:
+#                  name: id
+#                  type: BIGSERIAL
+#                  constraints:
+#                    primaryKey: true
+#                    nullable: false
+#              - column:
+#                  name: route_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#              - column:
+#                  name: user_id
+#                  type: BIGINT
+#                  constraints:
+#                    nullable: false
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: trip
+#            baseColumnNames: route_id
+#            constraintName: fk_trip_route
+#            referencedTableName: route
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: trip
+#            baseColumnNames: vehicle_id
+#            constraintName: fk_trip_vehicle
+#            referencedTableName: vehicle
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: trip
+#            baseColumnNames: accident_id
+#            constraintName: fk_trip_accident
+#            referencedTableName: accident
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: report
+#            baseColumnNames: user_id
+#            constraintName: fk_report_user
+#            referencedTableName: app_user
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: report
+#            baseColumnNames: accident_id
+#            constraintName: fk_report_accident
+#            referencedTableName: accident
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: stop_time
+#            baseColumnNames: stop_id
+#            constraintName: fk_stop_time_stop
+#            referencedTableName: stop
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: stop_time
+#            baseColumnNames: trip_id
+#            constraintName: fk_stop_time_trip
+#            referencedTableName: trip
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: route
+#            baseColumnNames: route_type_id
+#            constraintName: fk_route_route_type
+#            referencedTableName: route_type
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: route_user
+#            baseColumnNames: route_id
+#            constraintName: fk_route_user_route
+#            referencedTableName: route
+#            referencedColumnNames: id
+#
+#        - addForeignKeyConstraint:
+#            baseTableName: route_user
+#            baseColumnNames: user_id
+#            constraintName: fk_route_user_user
+#            referencedTableName: app_user
+#            referencedColumnNames: id
