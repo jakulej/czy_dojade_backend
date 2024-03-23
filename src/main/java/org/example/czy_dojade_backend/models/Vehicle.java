@@ -19,11 +19,11 @@ public class Vehicle {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "current_latitude")
-    private double currentLatitude;
+    @Column(name = "curr_latitude")
+    private double currLatitude;
 
-    @Column(name = "current_longitude")
-    private double currentLongitude;
+    @Column(name = "curr_longitude")
+    private double currLongitude;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Trip> trip;

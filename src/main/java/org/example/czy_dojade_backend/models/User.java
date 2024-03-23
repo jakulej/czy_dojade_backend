@@ -23,8 +23,8 @@ public class User {
     @Column(name = "username")
     private String username;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "hash_password")
+    private String hashPassword;
 
     @Column(name = "email")
     private String email;

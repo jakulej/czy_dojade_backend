@@ -28,6 +28,7 @@ public class StopTime {
     private LocalDateTime departureTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "stop_id")
     @JsonIgnore
     private Stop stop;
 

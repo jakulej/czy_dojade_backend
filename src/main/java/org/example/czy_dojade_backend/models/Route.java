@@ -35,6 +35,8 @@ public class Route {
     private List<Trip> trips;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "route_type_id")
+    @JsonIgnore
     private RouteType routeType;
 
 }

@@ -27,8 +27,7 @@ public class RouteType {
             example = "Normalna autobusowa")
     private String type;
 
-    @JoinColumn(name = "route_id")
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "routeType", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Route> routes;
 
 }

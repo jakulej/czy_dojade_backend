@@ -35,7 +35,7 @@ public class Trip {
     @JsonIgnore
     private Vehicle vehicle;
 
-    @OneToOne(mappedBy = "trip", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "trip", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Accident accident;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)

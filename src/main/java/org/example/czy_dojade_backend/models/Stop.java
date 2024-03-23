@@ -27,13 +27,12 @@ public class Stop {
     private String name;
 
     @Column(name = "latitude")
-    private float latitude;
+    private double latitude;
 
     @Column(name = "longitude")
-    private float longitude;
+    private double longitude;
 
-    @JoinColumn(name = "stop_times")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "stop", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StopTime> stopTimes;
 
 }

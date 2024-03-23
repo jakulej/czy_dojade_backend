@@ -35,7 +35,7 @@ public class Accident {
     @OneToMany(mappedBy = "accident", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trip_id", referencedColumnName = "id", nullable = false)
     private Trip trip;
 
