@@ -9,12 +9,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "employee")
-public class Employee {
+@Table(name = "route_user")
+public class RouteUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
-    @Column(name = "name")
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "route_id")
+    private Route route;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }
+
