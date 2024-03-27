@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "app_user")
-public class User {
+public class AppUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +34,9 @@ public class User {
 
     @Column(name = "last_name")
     private String lastName;
+
+    @Column(name = "subscriber")
+    private boolean subscriber;
 
     @Column(name = "reports")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)

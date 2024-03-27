@@ -1,6 +1,5 @@
 package org.example.czy_dojade_backend.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,7 +27,7 @@ public class Report {
 
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
-    private User user;
+    private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accident_id", referencedColumnName = "id", nullable = false)
