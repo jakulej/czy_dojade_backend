@@ -253,23 +253,6 @@ databaseChangeLog:
                                   referencedTableName: trip
                                   referencedColumnNames: id
 
-              # bez tego? jak to jest to circular reference chyba.
-              # tak jak jest teraz to relacja jest w dobrą stronę i git, czy ją odwrócić
-              # i dać accident_id do tripa usuwając trip_id z accidentu?
-              # imo git jest teraz i ten komentarz do usunięcia, ale liczę na feedback zanim zmerguje
-
-#              - addColumn:
-#                    tableName: trip
-#                    columns:
-#                      - column:
-#                          name: accident_id
-#                          type: bigint
-#                          constraints:
-#                              nullable: true
-#                              foreignKeyName: fk_trip_accident
-#                              referencedTableName: accident
-#                              referencedColumnNames: id
-
               - createTable:
                     tableName: stop_time
                     columns:
