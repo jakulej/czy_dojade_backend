@@ -7,7 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class UserDto {
-    private Long id;
     @NotNull
     private String username;
     @NotNull

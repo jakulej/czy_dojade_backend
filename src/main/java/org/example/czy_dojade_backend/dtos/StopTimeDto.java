@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 public class StopTimeDto {
 
-    private long id;
-
     @NotNull
     private LocalDateTime arrivalTime;
 

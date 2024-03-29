@@ -9,8 +9,6 @@ import lombok.*;
 @Builder
 public class RouteDto {
 
-    private long id;
-
     @NotNull
     private String shortName;
 

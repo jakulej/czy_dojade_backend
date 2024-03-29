@@ -9,8 +9,6 @@ import lombok.*;
 @Builder
 public class TripDto {
 
-    private long id;
-
     @NotNull
     private String tripHeadsign;
 

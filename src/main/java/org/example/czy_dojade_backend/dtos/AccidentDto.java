@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class AccidentDto {
-    private long id;
-
     @NotNull
     private double accLatitude;
 

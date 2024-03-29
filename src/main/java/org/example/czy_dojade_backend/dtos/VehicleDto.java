@@ -8,9 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class VehicleDto {
-
-    private long id;
-
     @NotNull
     private double currLatitude;
 

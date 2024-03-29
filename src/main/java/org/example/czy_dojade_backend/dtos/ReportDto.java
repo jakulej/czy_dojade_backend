@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 public class ReportDto {
 
-    private long id;
-
     @NotNull
     private String description;
 

@@ -9,8 +9,6 @@ import lombok.*;
 @Builder
 public class StopDto {
 
-    private long id;
-
     @NotNull
     private String code;
 
