@@ -15,15 +15,15 @@ public class ChangePasswordDto {
     @NotNull
     private String email;
     @NotNull
-    private char[] oldPassword;
+    private String oldPassword;
     @NotNull
-    private char[] newPassword;
+    private String newPassword;
     @NotNull
-    private char[] newPasswordConfirm;
+    private String newPasswordConfirm;
 
     public void clearPasswords(){
-        Arrays.fill(oldPassword, '\0');
-        Arrays.fill(newPassword, '\0');
-        Arrays.fill(newPasswordConfirm, '\0');
+        oldPassword = "";
+        newPassword = "";
+        newPasswordConfirm = "";
     }
 }

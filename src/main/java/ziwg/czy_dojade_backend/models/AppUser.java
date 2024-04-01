@@ -24,7 +24,7 @@ public class AppUser {
     private String username;
 
     @Column(name = "hash_password")
-    private char[] hashPassword;
+    private String hashPassword;
 
     @Column(name = "email")
     private String email;
@@ -43,7 +43,7 @@ public class AppUser {
     @JsonIgnore
     private List<Report> reports;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "route_user",
             joinColumns = @JoinColumn(name = "user_id"),

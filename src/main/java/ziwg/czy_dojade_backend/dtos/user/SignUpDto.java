@@ -18,9 +18,9 @@ public class SignUpDto {
     @NotNull
     private String email;
     @NotNull
-    private char[] hashPassword;
+    private String hashPassword;
 
     public void clearPassword() {
-        Arrays.fill(hashPassword, '\0');
+        hashPassword = "";
     }
 }

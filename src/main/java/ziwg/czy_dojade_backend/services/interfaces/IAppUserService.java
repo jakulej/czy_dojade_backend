@@ -12,7 +12,7 @@ import java.util.List;
 public interface IAppUserService {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-    boolean passwordTaken(char[] password);
+    boolean passwordTaken(String password);
 
     List<AppUser> getAllUsers();
     AppUser getUserById(Long id) throws NotFoundException;

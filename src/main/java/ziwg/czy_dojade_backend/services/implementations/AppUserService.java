@@ -13,9 +13,8 @@ import ziwg.czy_dojade_backend.models.AppUser;
 import ziwg.czy_dojade_backend.repositories.AppUserRepository;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 
-import java.util.Arrays;
+import java.nio.CharBuffer;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,9 +26,9 @@ public class AppUserService implements IAppUserService
     private final PasswordEncoder passwordEncoder;
 
     public void hashPasswords(ChangePasswordDto user){
-        user.setOldPassword(passwordEncoder.encode(new String(user.getOldPassword())).toCharArray());
-        user.setNewPassword(passwordEncoder.encode(new String(user.getNewPassword())).toCharArray());
-        user.setNewPasswordConfirm(passwordEncoder.encode(new String(user.getNewPasswordConfirm())).toCharArray());
+        user.setOldPassword(passwordEncoder.encode(CharBuffer.wrap(user.getOldPassword())));
+        user.setNewPassword(passwordEncoder.encode(CharBuffer.wrap(user.getNewPassword())));
+        user.setNewPasswordConfirm(passwordEncoder.encode(CharBuffer.wrap(user.getNewPasswordConfirm())));
     }
     public void validateSignUp(SignUpDto user) throws AlreadyExistsException {
         if (appUserRepository.existsByEmail(user.getEmail())) {
@@ -38,36 +37,27 @@ public class AppUserService implements IAppUserService
         else if (appUserRepository.existsByUsername(user.getUsername())) {
             throw new AlreadyExistsException("User with username " + user.getUsername() + " already exists");
         }
-        else if (appUserRepository.existsByHashPassword(user.getHashPassword())) {
-            throw new AlreadyExistsException("User with that password already exists");
-        }
     }
 
-    public void validateUpdateUser(Long id, AppUserDto user) throws NotFoundException, AlreadyExistsException {
-        if (!appUserRepository.existsByEmailAndUsername(user.getEmail(), user.getUsername())) {
-            throw new NotFoundException("User with username " + user.getUsername() + " and email " + user.getEmail() + " not found");
+    public AppUser validateChangePassword(ChangePasswordDto user) throws NotFoundException, PasswordMismatchException {
+        Optional<AppUser> updatedUser = appUserRepository.findByEmail(user.getEmail());
+        if (updatedUser.isEmpty()){
+            throw new NotFoundException("User with email " + user.getEmail() + " was not found");
         }
-        if (!appUserRepository.existsById(id)) {
-            throw new NotFoundException("User with id " + id + " not found");
+        if (!user.getNewPassword().equals(user.getNewPasswordConfirm())){
+            throw new PasswordMismatchException("New password and new password confirmation are not the same");
         }
-        if (!(Objects.equals(appUserRepository.findByEmail(user.getEmail()).get().getId(), id))){
-            throw new AlreadyExistsException("User with username " + user.getUsername() + " and email " + user.getEmail() + " already exists with a different id");
-        }
-    }
-
-    public void validateChangePassword(ChangePasswordDto user) throws NotFoundException, PasswordMismatchException {
-        if (!appUserRepository.existsByEmailAndHashPassword(user.getEmail(), user.getOldPassword())) {
-            throw new NotFoundException("User with email " + user.getEmail() + " and that password was not found");
-        }
-        if (Arrays.equals(user.getOldPassword(), user.getNewPassword())){
+        if (user.getOldPassword().equals(user.getNewPassword())){
             throw new PasswordMismatchException("New password and old password are the same");
         }
-        if (!Arrays.equals(user.getNewPassword(), user.getNewPasswordConfirm())){
-            throw new PasswordMismatchException("New password and new password confirmation do not match");
+        if (!passwordEncoder.matches(user.getOldPassword(), updatedUser.get().getHashPassword())){
+            throw new PasswordMismatchException("Old password is incorrect");
         }
-        if (passwordTaken(user.getNewPassword())){
+        if (passwordTaken(user.getNewPassword())) {
             throw new PasswordMismatchException("New password is already taken");
         }
+        hashPasswords(user);
+        return updatedUser.get();
     }
 
     @Override
@@ -79,14 +69,21 @@ public class AppUserService implements IAppUserService
         return appUserRepository.existsByUsername(username);
     }
     @Override
-    public boolean passwordTaken(char[] password) {
-        return appUserRepository.existsByHashPassword(password);
+    public boolean passwordTaken(String newPassword) {
+        List<String> hashedPasswords = appUserRepository.getAllHashedPasswords();
+        boolean isTaken = false;
+        for (String hashedPassword : hashedPasswords) {
+            if (passwordEncoder.matches(newPassword, hashedPassword)) {
+                isTaken = true;
+            }
+            hashedPassword = "";
+        }
+        return isTaken;
     }
 
+
     @Override
-    public List<AppUser> getAllUsers() {
-        return appUserRepository.findAll();
-    }
+    public List<AppUser> getAllUsers() { return appUserRepository.findAll(); }
     @Override
     public AppUser getUserById(Long id) throws NotFoundException{
         return appUserRepository
@@ -108,8 +105,11 @@ public class AppUserService implements IAppUserService
 
     @Override
     public AppUser signUpUser(SignUpDto user) throws AlreadyExistsException {
-        String pswd = passwordEncoder.encode(new String(user.getHashPassword()));
-        user.setHashPassword(pswd.toCharArray());
+        if (passwordTaken(user.getHashPassword())) {
+            throw new PasswordMismatchException("That password is already taken");
+        }
+        String pswd = passwordEncoder.encode(CharBuffer.wrap(user.getHashPassword()));
+        user.setHashPassword(pswd);
         validateSignUp(user);
 
         AppUser newUser = new AppUser();
@@ -125,27 +125,28 @@ public class AppUserService implements IAppUserService
     }
     @Override
     public AppUser updateUser(Long id, AppUserDto user) throws NotFoundException, AlreadyExistsException {
-        validateUpdateUser(id, user);
+        Optional<AppUser> updatedUser = appUserRepository.findById(id);
+        if (updatedUser.isEmpty()){
+            throw new NotFoundException("User with id " + id + " not found");
+        }
 
-        AppUser updatedUser = appUserRepository.findById(id).get();
-        updatedUser.setUsername(user.getUsername());
-        updatedUser.setEmail(user.getEmail());
-        updatedUser.setFirstName(user.getFirstName());
-        updatedUser.setLastName(user.getLastName());
-        updatedUser.setSubscriber(user.isSubscriber());
+        updatedUser.get().setUsername(user.getUsername());
+        updatedUser.get().setEmail(user.getEmail());
+        updatedUser.get().setFirstName(user.getFirstName());
+        updatedUser.get().setLastName(user.getLastName());
+        updatedUser.get().setSubscriber(user.isSubscriber());
 
-        appUserRepository.saveAndFlush(updatedUser);
-        return updatedUser;
+        appUserRepository.saveAndFlush(updatedUser.get());
+        return updatedUser.get();
     }
     @Override
     public AppUser changePassword(ChangePasswordDto user) throws NotFoundException, PasswordMismatchException {
-        hashPasswords(user);
-        validateChangePassword(user);
+        AppUser updatedUser = validateChangePassword(user);
 
-        AppUser updatedUser = appUserRepository.findByEmail(user.getEmail()).get();
         updatedUser.setHashPassword(user.getNewPassword());
         user.clearPasswords();
         appUserRepository.saveAndFlush(updatedUser);
+
         return updatedUser;
     }
     @Override
