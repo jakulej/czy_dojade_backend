@@ -1,10 +1,10 @@
 INSERT INTO app_user (username, hash_password, email, first_name, last_name, subscriber)
 VALUES
-    ('user1', 'password1', 'user1@example.com', 'John', 'Doe', true),
-    ('user2', 'password2', 'user2@example.com', 'Jane', 'Smith', false),
-    ('user3', 'password3', 'user3@example.com', 'Alice', 'Johnson', true),
-    ('user4', 'password4', 'user4@example.com', 'Bob', 'Brown', false),
-    ('user5', 'password5', 'user5@example.com', 'Emma', 'White', true);
+    ('user1', '$2a$10$wMOV3vrXwQmwmNQx0qEOxuICbS/6HpTa.lruJU2w5qjAkYV2P1ABK', 'user1@example.com', 'John', 'Doe', true),        -- password1
+    ('user2', '$2a$10$YsYRGVPbpTKsFYNqM6y//ef4cdu2aPGnKMkFz0kIFpTw8.D/boi3i', 'user2@example.com', 'Jane', 'Smith', false),     -- password2
+    ('user3', '$2a$10$Cf19F9hlJVRbU9DdFCfgROGGkmc3CDUEl1/9xI3uXcKkYr8iDRHMy', 'user3@example.com', 'Alice', 'Johnson', true),   -- password3
+    ('user4', '$2a$10$ayVB2ZBv/ZR9AFeCy73gvOrhOCVejbPsg50Ufi9dIgBTTRjxVAca6', 'user4@example.com', 'Bob', 'Brown', false),      -- password4
+    ('user5', '$2a$10$sMQqUBfqtF0baPzehx9AVuQNPUni4t45/pWztuixqNupYlXf0oz6W', 'user5@example.com', 'Emma', 'White', true);      -- password5
 
 INSERT INTO vehicle (curr_latitude, curr_longitude)
 VALUES
