@@ -326,3 +326,11 @@ databaseChangeLog:
                                   foreignKeyName: fk_report_accident
                                   referencedTableName: accident
                                   referencedColumnNames: id
+
+    - changeSet:
+        id: delete_long_name_column_from_route
+        author: Kuba
+        changes:
+            - dropColumn:
+                columnName: long_name
+                tableName: route

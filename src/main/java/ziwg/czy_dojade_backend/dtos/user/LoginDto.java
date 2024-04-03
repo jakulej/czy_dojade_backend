@@ -15,9 +15,7 @@ public class LoginDto {
     @NotNull
     private String email;
     @NotNull
-    private char[] hashPassword;
+    private String hashPassword;
 
-    public void clearPassword(){
-        Arrays.fill(hashPassword, '\0');
-    }
+    public void clearPassword(){ hashPassword = ""; }
 }
