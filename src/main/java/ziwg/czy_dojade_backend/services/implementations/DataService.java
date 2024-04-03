@@ -7,9 +7,8 @@ import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -40,7 +39,11 @@ public class DataService {
             String extractPath = resourcesDirectory + "GTFS";
 
             // Read the text files
-            readTextFiles(extractPath);
+            importRouteTypes(extractPath);
+            importStops(extractPath);
+            importRoutes(extractPath);
+            importTrips(extractPath);
+            importStopTimes(extractPath);
 
             return "Files processed successfully.";
         } catch (Exception e) {
@@ -81,80 +84,142 @@ public class DataService {
         }
     }
 
-    private void readTextFiles(String directoryPath) {
-        File directory = new File(directoryPath);
-        String[] fileNames = {"stops.txt", "route_types.txt", "routes.txt", "trips.txt", "stop_times.txt"};
-        //File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".txt"));
-        File[] files = directory.listFiles((dir, name) -> {
-            for (String fileName : fileNames) {
-                if (name.equalsIgnoreCase(fileName)) {
-                    return true;
+    private void importStops(String directoryPath){
+        String filePath = directoryPath + File.separator + "stops.txt";
+        File file = new File(filePath);
+
+        List<Stop> stopList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Stop stop = new Stop(Long.parseLong(values[0]), values[1],
+                        values[2], Double.parseDouble(values[3]), Double.parseDouble(values[4]),
+                        stopTimeRepository.findByStopId(Long.parseLong(values[0])));
+
+                        stopList.add(stop);
+            }
+            stopRepository.saveAll(stopList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importRouteTypes(String directoryPath){
+        String filePath = directoryPath + File.separator + "route_types.txt";
+        File file = new File(filePath);
+
+        List<RouteType> routeTypesList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                RouteType routeType = new RouteType(Long.parseLong(values[0]), values[1],
+                        routeRepository.findByRouteTypeId(Long.parseLong(values[0])));
+
+                routeTypesList.add(routeType);
+            }
+            routeTypeRepository.saveAll(routeTypesList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importRoutes(String directoryPath){
+        String filePath = directoryPath + File.separator + "routes.txt";
+        File file = new File(filePath);
+
+        List<Route> routeList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Optional<RouteType> optionalRouteType = routeTypeRepository.findById(Long.valueOf(values[6]));
+                if (optionalRouteType.isPresent()) {
+                    Route route = new Route(Long.parseLong(values[0]),
+                            values[2], values[4],
+                            tripRepository.findByRouteId(Long.parseLong(values[0])),
+                            optionalRouteType.get());
+
+                    routeList.add(route);
                 }
             }
-            return false;
-        });
-        if (files != null) {
-            for (File file : files) {
-                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                    String line;
+            routeRepository.saveAll(routeList);
 
-                    while ((line = reader.readLine()) != null) {
-                        String[] values = line.split(",");
-                        switch (file.getName()) {
-                            case "stops.txt":
-                                Stop stop = new Stop(Long.parseLong(values[0]), values[2],
-                                        values[3], Double.parseDouble(values[4]), Double.parseDouble(values[5]),
-                                        stopTimeRepository.findByStopId(Long.parseLong(values[0])));
-                                stopRepository.save(stop);
-                                break;
-                            case "route_types.txt":
-                                RouteType routeType = new RouteType(Long.parseLong(values[0]), values[1],
-                                        routeRepository.findByRouteTypeId(Long.parseLong(values[0])));
-                                routeTypeRepository.save(routeType);
-                                break;
-                            case "routes.txt":
-                                Optional<RouteType> optionalRouteType = routeTypeRepository.findById(Long.valueOf(values[6]));
-                                if(optionalRouteType.isPresent()){
-                                    Route route = new Route(Long.parseLong(values[0]),
-                                            values[2], values[3], values[4],
-                                            tripRepository.findByRouteId(Long.parseLong(values[0])),
-                                            optionalRouteType.get());
-                                    routeRepository.save(route);
-                                }
-                                break;
-                            case "trips.txt":
-                                Optional<Route> optionalRoute = routeRepository.findById(Long.valueOf(values[0]));
-                                Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
-                                if(optionalVehicle.isPresent() && optionalRoute.isPresent()){
-                                    Trip trip = new Trip(Long.parseLong(values[2]), values[3], Integer.parseInt(values[4]),
-                                            optionalRoute.get(), optionalVehicle.get(),
-                                            accidentRepository.findByTripId(Long.parseLong(values[2])),
-                                            stopTimeRepository.findByTripId(Long.parseLong(values[2])));
-                                    tripRepository.save(trip);
-                                }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-                                break;
-                            case "stop_times.txt":
-                                Optional<Stop> optionalStop = stopRepository.findById(Long.valueOf(values[3]));
-                                Optional<Trip> optionalTrip = tripRepository.findById(Long.valueOf(values[0]));
-                                if(optionalStop.isPresent() && optionalTrip.isPresent()){
-                                    StopTime stopTime = new StopTime();
-                                    stopTime.setArrivalTime(LocalDateTime.parse(values[1]));
-                                    stopTime.setDepartureTime(LocalDateTime.parse(values[2]));
-                                    stopTime.setStop(optionalStop.get());
-                                    stopTime.setTrip(optionalTrip.get());
-                                    stopTimeRepository.save(stopTime);
-                                }
-                                break;
-                            default:
-                                // Handle unknown file
-                                break;
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+    private void importTrips(String directoryPath){
+        String filePath = directoryPath + File.separator + "trips.txt";
+        File file = new File(filePath);
+
+        List<Trip> tripList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Optional<Route> optionalRoute = routeRepository.findById(Long.valueOf(values[0]));
+                Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
+                if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
+                    Trip trip = new Trip(Long.parseLong(values[2]), values[3], Integer.parseInt(values[4]),
+                            optionalRoute.get(), optionalVehicle.get(),
+                            accidentRepository.findByTripId(Long.parseLong(values[2])),
+                            stopTimeRepository.findByTripId(Long.parseLong(values[2])));
+
+                    tripList.add(trip);
                 }
             }
+            tripRepository.saveAll(tripList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importStopTimes(String directoryPath){
+        String filePath = directoryPath + File.separator + "stop_times.txt";
+        File file = new File(filePath);
+
+        List<StopTime> stopTimeList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Optional<Stop> optionalStop = stopRepository.findById(Long.valueOf(values[3]));
+                Optional<Trip> optionalTrip = tripRepository.findById(Long.valueOf(values[0]));
+                if (optionalStop.isPresent() && optionalTrip.isPresent()) {
+                    StopTime stopTime = new StopTime();
+                    stopTime.setArrivalTime(LocalDateTime.parse(values[1]));
+                    stopTime.setDepartureTime(LocalDateTime.parse(values[2]));
+                    stopTime.setStop(optionalStop.get());
+                    stopTime.setTrip(optionalTrip.get());
+
+                    stopTimeList.add(stopTime);
+                }
+            }
+            stopTimeRepository.saveAll(stopTimeList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

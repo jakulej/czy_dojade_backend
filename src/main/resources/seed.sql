@@ -20,13 +20,13 @@ VALUES
     ('Autobus nocny'),
     ('Tramwaj');
 
-INSERT INTO route (short_name, long_name, description, route_type_id)
+INSERT INTO route (short_name, description, route_type_id)
 VALUES
-    ('149', 'Long_Name_149', 'Description 149', (SELECT id FROM route_type WHERE type = 'Autobus dzienny')),
-    ('255', 'Long_Name_255', 'Description 255', (SELECT id FROM route_type WHERE type = 'Autobus nocny')),
-    ('16', 'Long_Name_16', 'Description 16', (SELECT id FROM route_type WHERE type = 'Tramwaj')),
-    ('12', 'Long_Name_12', 'Description 12', (SELECT id FROM route_type WHERE type = 'Tramwaj')),
-    ('3', 'Long_Name_3', 'Description 3', (SELECT id FROM route_type WHERE type = 'Tramwaj'));
+    ('149', 'Description 149', (SELECT id FROM route_type WHERE type = 'Autobus dzienny')),
+    ('255', 'Description 255', (SELECT id FROM route_type WHERE type = 'Autobus nocny')),
+    ('16', 'Description 16', (SELECT id FROM route_type WHERE type = 'Tramwaj')),
+    ('12', 'Description 12', (SELECT id FROM route_type WHERE type = 'Tramwaj')),
+    ('3', 'Description 3', (SELECT id FROM route_type WHERE type = 'Tramwaj'));
 
 INSERT INTO route_user (route_id, user_id)
 VALUES
@@ -76,4 +76,3 @@ VALUES
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user2' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '16 - Zoo') LIMIT 1)),
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user3' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '3 - Hubska') LIMIT 1)),
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user5' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '149 - Plac Grunwaldzki') LIMIT 1));
-

@@ -23,9 +23,6 @@ public class Route {
     @Column(name = "short_name")
     private String shortName;
 
-    @Column(name = "long_name")
-    private String longName;
-
     @Column(name = "description")
     private String description;
 
