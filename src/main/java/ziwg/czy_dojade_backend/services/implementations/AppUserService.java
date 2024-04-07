@@ -8,7 +8,7 @@ import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
-import ziwg.czy_dojade_backend.exceptions.PasswordMismatchException;
+import ziwg.czy_dojade_backend.exceptions.BadCredentialsException;
 import ziwg.czy_dojade_backend.models.AppUser;
 import ziwg.czy_dojade_backend.repositories.AppUserRepository;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
@@ -39,22 +39,19 @@ public class AppUserService implements IAppUserService
         }
     }
 
-    public AppUser validateChangePassword(ChangePasswordDto user) throws NotFoundException, PasswordMismatchException {
+    public AppUser validateChangePassword(ChangePasswordDto user) throws NotFoundException, BadCredentialsException {
         Optional<AppUser> updatedUser = appUserRepository.findByEmail(user.getEmail());
         if (updatedUser.isEmpty()){
             throw new NotFoundException("User with email " + user.getEmail() + " was not found");
         }
         if (!user.getNewPassword().equals(user.getNewPasswordConfirm())){
-            throw new PasswordMismatchException("New password and new password confirmation are not the same");
+            throw new BadCredentialsException("New password and new password confirmation are not the same");
         }
         if (user.getOldPassword().equals(user.getNewPassword())){
-            throw new PasswordMismatchException("New password and old password are the same");
+            throw new BadCredentialsException("New password and old password are the same");
         }
         if (!passwordEncoder.matches(user.getOldPassword(), updatedUser.get().getHashPassword())){
-            throw new PasswordMismatchException("Old password is incorrect");
-        }
-        if (passwordTaken(user.getNewPassword())) {
-            throw new PasswordMismatchException("New password is already taken");
+            throw new BadCredentialsException("Old password is incorrect");
         }
         hashPasswords(user);
         return updatedUser.get();
@@ -68,19 +65,6 @@ public class AppUserService implements IAppUserService
     public boolean existsByUsername(String username) {
         return appUserRepository.existsByUsername(username);
     }
-    @Override
-    public boolean passwordTaken(String newPassword) {
-        List<String> hashedPasswords = appUserRepository.getAllHashedPasswords();
-        boolean isTaken = false;
-        for (String hashedPassword : hashedPasswords) {
-            if (passwordEncoder.matches(newPassword, hashedPassword)) {
-                isTaken = true;
-            }
-            hashedPassword = "";
-        }
-        return isTaken;
-    }
-
 
     @Override
     public List<AppUser> getAllUsers() { return appUserRepository.findAll(); }
@@ -105,9 +89,6 @@ public class AppUserService implements IAppUserService
 
     @Override
     public AppUser signUpUser(SignUpDto user) throws AlreadyExistsException {
-        if (passwordTaken(user.getHashPassword())) {
-            throw new PasswordMismatchException("That password is already taken");
-        }
         String pswd = passwordEncoder.encode(CharBuffer.wrap(user.getHashPassword()));
         user.setHashPassword(pswd);
         validateSignUp(user);
@@ -140,7 +121,7 @@ public class AppUserService implements IAppUserService
         return updatedUser.get();
     }
     @Override
-    public AppUser changePassword(ChangePasswordDto user) throws NotFoundException, PasswordMismatchException {
+    public AppUser changePassword(ChangePasswordDto user) throws NotFoundException, BadCredentialsException {
         AppUser updatedUser = validateChangePassword(user);
 
         updatedUser.setHashPassword(user.getNewPassword());
