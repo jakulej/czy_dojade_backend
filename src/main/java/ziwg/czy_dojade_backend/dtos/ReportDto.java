@@ -15,9 +15,6 @@ public class ReportDto {
     private String description;
 
     @NotNull
-    private LocalDateTime timeOfReport;
-
-    @NotNull
     private String username;
 
     @NotNull

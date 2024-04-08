@@ -1,13 +1,17 @@
 package ziwg.czy_dojade_backend.services.interfaces;
 
+import ziwg.czy_dojade_backend.dtos.ReportDto;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
+import ziwg.czy_dojade_backend.models.Report;
+import ziwg.czy_dojade_backend.models.Route;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IAppUserService {
     boolean existsByEmail(String email);
@@ -22,5 +26,11 @@ public interface IAppUserService {
     AppUser updateUser(Long id, AppUserDto user) throws NotFoundException, AlreadyExistsException;
     AppUser changePassword(ChangePasswordDto user) throws NotFoundException;
     AppUser deleteUser(Long id) throws NotFoundException;
+
+    Route addRouteToFavourites(Long id, String routeName) throws NotFoundException;
+    Report reportAccident(ReportDto reportDto) throws NotFoundException;
+    Optional<AppUser> subscribe(Long id) throws NotFoundException;
+    Optional<AppUser> unsubscribe(Long id) throws NotFoundException;
+
 
 }

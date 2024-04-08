@@ -4,13 +4,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ziwg.czy_dojade_backend.dtos.ReportDto;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.models.AppUser;
+import ziwg.czy_dojade_backend.models.Report;
+import ziwg.czy_dojade_backend.models.Route;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -57,5 +61,30 @@ public class AppUserController {
     public ResponseEntity<AppUser> deleteUser(@PathVariable Long id) {
         return new ResponseEntity<>(appUserService.deleteUser(id), HttpStatus.OK);
     }
+
+    // TODO: dodanie trasy do ulubionych
+    @PostMapping("/{id}/addRouteToFavourites/{routeName}")
+    public ResponseEntity<Route> addRouteToFavourites(@PathVariable Long id, @PathVariable String routeName) {
+        return new ResponseEntity<>(appUserService.addRouteToFavourites(id, routeName), HttpStatus.OK);
+    }
+
+    // TODO: zgłaszanie raportu o wypadku
+    @PostMapping("/{id}/reportAccident")
+    public ResponseEntity<Report> reportAccident(@RequestBody ReportDto reportDto) {
+        return new ResponseEntity<>(appUserService.reportAccident(reportDto), HttpStatus.OK);
+    }
+
+    // TODO: subskrypcja
+    @PutMapping("/{id}/subscribe")
+    public ResponseEntity<Optional<AppUser>> subscribe(@PathVariable Long id) {
+        return new ResponseEntity<>(appUserService.subscribe(id), HttpStatus.OK);
+    }
+
+    // TODO: anulowanie subskrypcji
+    @PutMapping("/{id}/unsubscribe")
+    public ResponseEntity<Optional<AppUser>> unsubscribe(@PathVariable Long id) {
+        return new ResponseEntity<>(appUserService.unsubscribe(id), HttpStatus.OK);
+    }
+
 
 }

@@ -3,17 +3,18 @@ package ziwg.czy_dojade_backend.services.implementations;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ziwg.czy_dojade_backend.dtos.ReportDto;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
-import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
-import ziwg.czy_dojade_backend.exceptions.NotFoundException;
-import ziwg.czy_dojade_backend.exceptions.BadCredentialsException;
-import ziwg.czy_dojade_backend.models.AppUser;
-import ziwg.czy_dojade_backend.repositories.AppUserRepository;
+import ziwg.czy_dojade_backend.exceptions.*;
+import ziwg.czy_dojade_backend.models.*;
+import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
+import ziwg.czy_dojade_backend.utils.AppUserServiceUtils;
 
 import java.nio.CharBuffer;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,11 @@ public class AppUserService implements IAppUserService
 {
 
     private final AppUserRepository appUserRepository;
+    private final RouteRepository routeRepository;
+    private final ReportRepository reportRepository;
+    private final AccidentRepository accidentRepository;
+    private final TripRepository tripRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     public void hashPasswords(ChangePasswordDto user){
@@ -140,4 +146,108 @@ public class AppUserService implements IAppUserService
         appUserRepository.deleteById(id);
         return deletedUser;
     }
+
+    @Override
+    public Route addRouteToFavourites(Long id, String routeName) throws NotFoundException {
+        Optional<AppUser> user = appUserRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("User with id " + id + " not found");
+        }
+        Optional<Route> route = routeRepository.findByRouteName(routeName);
+        if (route.isEmpty()) {
+            throw new NotFoundException("Route with name " + routeName + " not found");
+        }
+
+        user.get().getFavouriteRoutes().add(route.get());
+        appUserRepository.saveAndFlush(user.get());
+        return route.get();
+    }
+
+    @Override
+    public Report reportAccident(ReportDto reportDto) throws NotFoundException {
+        if (reportDto == null || reportDto.getUsername() == null){
+            throw new NotFoundException("Report data not found");
+        }
+        Optional<AppUser> user = appUserRepository.findByUsername(reportDto.getUsername());
+        if (user.isEmpty()) {
+            throw new NotFoundException("User with username: " + reportDto.getUsername() + " not found");
+        }
+        List<Trip> trips = tripRepository.findAllByTripHeadsign(
+                reportDto
+                        .getAccidentDto()
+                        .getTripHeadsign()
+        );
+        if (trips.isEmpty()){
+            throw new NotFoundException("Trip with headsign: " + reportDto.getAccidentDto().getTripHeadsign() + " not found");
+        }
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime startTime = currentTime.minusHours(3);
+        LocalDateTime endTime = currentTime.plusHours(3);
+
+        Trip trip = AppUserServiceUtils.findNearestTrip(
+                trips,
+                reportDto.getAccidentDto().getAccLatitude(),
+                reportDto.getAccidentDto().getAccLongitude()
+        );
+        List<Accident> accidents = accidentRepository.findAllByTrip_Id(trip.getId());
+        Accident accident;
+        if (accidents.isEmpty()){
+            accident = new Accident();
+            accident.setAccLatitude(reportDto.getAccidentDto().getAccLatitude());
+            accident.setAccLongitude(reportDto.getAccidentDto().getAccLongitude());
+            accident.setVerified(false);
+            accident.setTimeOfAccident(currentTime);
+            accident.setTrip(trip);
+        } else {
+            accident = AppUserServiceUtils.findNearestAccident(
+                    accidents,
+                    reportDto.getAccidentDto().getAccLatitude(),
+                    reportDto.getAccidentDto().getAccLongitude()
+            );
+            if (!accident.isVerified()){
+                List<Report> reports = reportRepository.findAllByAccident_Id(accident.getId());
+                accident.setVerified(reports.size() >= 2);
+            }
+        }
+
+        Report report = new Report();
+        report.setDescription(reportDto.getDescription());
+        report.setTimeOfReport(currentTime);
+        report.setUser(user.get());
+        report.setAccident(accident);
+
+        reportRepository.saveAndFlush(report);
+        accidentRepository.saveAndFlush(accident);
+        return report;
+    }
+
+    @Override
+    public Optional<AppUser> subscribe(Long id) throws NotFoundException {
+        Optional<AppUser> user = appUserRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("User with id " + id + " not found");
+        }
+        if (user.get().isSubscriber()){
+            throw new AlreadySubscribedException("User with id " + id + " already is a subscriber");
+        }
+        user.get().setSubscriber(true);
+        appUserRepository.saveAndFlush(user.get());
+        return user;
+    }
+
+    @Override
+    public Optional<AppUser> unsubscribe(Long id) throws NotFoundException {
+        Optional<AppUser> user = appUserRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("User with id " + id + " not found");
+        }
+        if (!user.get().isSubscriber()){
+            throw new NotSubscribedException("User with id " + id + " is not a subscriber");
+        }
+        user.get().setSubscriber(false);
+        appUserRepository.saveAndFlush(user.get());
+        return user;
+    }
+
 }

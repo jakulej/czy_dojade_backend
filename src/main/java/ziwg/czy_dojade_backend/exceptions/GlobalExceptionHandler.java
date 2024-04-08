@@ -31,4 +31,16 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(AlreadySubscribedException.class)
+    public ResponseEntity<ErrorDetails> handleAlreadSubscribedException(AlreadySubscribedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NotSubscribedException.class)
+    public ResponseEntity<ErrorDetails> handleNotSubscribedException(NotSubscribedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
 }
