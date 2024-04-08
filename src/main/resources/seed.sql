@@ -14,7 +14,7 @@ VALUES
     (34.0522, -118.2437),
     (35.6895, 139.6917);
 
-INSERT INTO route_type (type)
+/*INSERT INTO route_type (type)
 VALUES
     ('Autobus dzienny'),
     ('Autobus nocny'),
@@ -75,4 +75,4 @@ VALUES
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user1' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '16 - Tarnogaj') LIMIT 1)),
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user2' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '16 - Zoo') LIMIT 1)),
     ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user3' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '3 - Hubska') LIMIT 1)),
-    ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user5' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '149 - Plac Grunwaldzki') LIMIT 1));
+    ('Description 1', '2024-03-30T08:30:00', (SELECT id FROM app_user WHERE username = 'user5' LIMIT 1), (SELECT id FROM accident WHERE trip_id = (SELECT id FROM trip WHERE trip_headsign = '149 - Plac Grunwaldzki') LIMIT 1));*/

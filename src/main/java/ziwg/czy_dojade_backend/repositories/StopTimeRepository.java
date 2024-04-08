@@ -10,6 +10,6 @@ import java.util.List;
 public interface StopTimeRepository extends JpaRepository<StopTime, Long> {
     List<StopTime> findByStopId(long id);
 
-    List<StopTime> findByTripId(long id);
+    List<StopTime> findByTripId(String id);
 
 }

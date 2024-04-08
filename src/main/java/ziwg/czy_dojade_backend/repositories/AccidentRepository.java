@@ -6,5 +6,5 @@ import ziwg.czy_dojade_backend.models.Accident;
 
 @RepositoryRestResource
 public interface AccidentRepository extends JpaRepository<Accident, Long> {
-    Accident findByTripId(long id);
+    Accident findByTripId(String id);
 }

@@ -7,6 +7,6 @@ import ziwg.czy_dojade_backend.models.Route;
 import java.util.List;
 
 @RepositoryRestResource
-public interface RouteRepository extends JpaRepository<Route, Long> {
+public interface RouteRepository extends JpaRepository<Route, String> {
     List<Route> findByRouteTypeId(long id);
 }

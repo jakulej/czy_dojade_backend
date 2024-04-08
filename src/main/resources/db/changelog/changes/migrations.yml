@@ -90,8 +90,7 @@ databaseChangeLog:
                     columns:
                         - column:
                               name: id
-                              type: bigserial
-                              autoIncrement: true
+                              type: varchar(50)
                               constraints:
                                   primaryKey: true
                                   nullable: false
@@ -107,7 +106,7 @@ databaseChangeLog:
                                   nullable: false
                         - column:
                               name: description
-                              type: varchar(255)
+                              type: text
                               defaultValue: "No description available"
                         - column:
                               name: route_type_id
@@ -130,7 +129,7 @@ databaseChangeLog:
                                   nullable: false
                         - column:
                               name: route_id
-                              type: bigint
+                              type: varchar(50)
                               constraints:
                                   nullable: false
                                   foreignKeyName: fk_route_user_route
@@ -181,8 +180,7 @@ databaseChangeLog:
                     columns:
                         - column:
                               name: id
-                              type: bigserial
-                              autoIncrement: true
+                              type: varchar(50)
                               constraints:
                                   primaryKey: true
                                   nullable: false
@@ -198,7 +196,7 @@ databaseChangeLog:
                                   nullable: false
                         - column:
                               name: route_id
-                              type: bigint
+                              type: varchar(50)
                               constraints:
                                   nullable: false
                                   foreignKeyName: fk_trip_route
@@ -246,7 +244,7 @@ databaseChangeLog:
                                   nullable: false
                         - column:
                               name: trip_id
-                              type: bigint
+                              type: varchar(50)
                               constraints:
                                   nullable: true
                                   foreignKeyName: fk_accident_trip
@@ -283,7 +281,7 @@ databaseChangeLog:
                                   referencedColumnNames: id
                         - column:
                               name: trip_id
-                              type: bigint
+                              type: varchar(50)
                               constraints:
                                   nullable: false
                                   foreignKeyName: fk_stop_time_trip
@@ -333,3 +331,14 @@ databaseChangeLog:
           - dropColumn:
               columnName: long_name
               tableName: route
+
+    - changeSet:
+        id: delete_start_time_end_time_columns_from_trip
+        author: Maciej
+        changes:
+          - dropColumn:
+              columnName: start_time
+              tableName: trip
+          - dropColumn:
+              columnName: end_time
+              tableName: trip
