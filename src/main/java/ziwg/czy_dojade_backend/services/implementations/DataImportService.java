@@ -19,7 +19,7 @@ import java.util.zip.ZipInputStream;
 
 @Service
 @AllArgsConstructor
-public class DataService {
+public class DataImportService {
 
     private final RouteRepository routeRepository;
     private final RouteTypeRepository routeTypeRepository;
@@ -41,7 +41,7 @@ public class DataService {
 
             String resourcesDirectory = getClass().getResource("/").getPath();
             String extractPath = resourcesDirectory + "GTFS";
-            
+
             importRouteTypes(extractPath);
             importStops(extractPath);
             importRoutes(extractPath);
