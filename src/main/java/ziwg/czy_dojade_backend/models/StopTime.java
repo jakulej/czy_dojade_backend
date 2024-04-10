@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 @Data
@@ -22,10 +23,10 @@ public class StopTime {
     private long id;
 
     @Column(name = "arrival_time")
-    private LocalDateTime arrivalTime;
+    private LocalTime arrivalTime;
 
     @Column(name = "departure_time")
-    private LocalDateTime departureTime;
+    private LocalTime departureTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stop_id")
