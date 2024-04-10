@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ErrorDetails> handlePasswordMismatchException(PasswordMismatchException e, WebRequest request) {
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorDetails> handlePasswordMismatchException(BadCredentialsException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
