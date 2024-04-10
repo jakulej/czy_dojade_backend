@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @RepositoryRestResource
 public interface RouteRepository extends JpaRepository<Route, Long>{
-    boolean existsByRouteId(Long routeId);
-    Optional<Route> findByRouteId(Long routeId);
-    Optional<Route> findByRouteName(String routeName);
+    boolean existsById(Long routeId);
+    Optional<Route> findById(Long routeId);
+    Optional<Route> findByShortName(String routeName);
 }

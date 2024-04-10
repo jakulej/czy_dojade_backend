@@ -10,10 +10,9 @@ import java.util.Optional;
 
 @RepositoryRestResource
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    boolean existsByReportId(Long reportId);
-    Optional<Report> findByReportId(Long reportId);
+    boolean existsById(Long reportId);
+    Optional<Report> findById(Long reportId);
     List<Report> findAllByAccident_Id(Long accidentId);
-
     @Query("SELECT r FROM Report r WHERE r.timeOfReport BETWEEN :startTime AND :endTime")
     List<Report> findAllByTimeOfReportBetween(String startTime, String endTime);
 }
