@@ -12,5 +12,5 @@ public interface RouteRepository extends JpaRepository<Route, String>{
     boolean existsById(String id);
     Optional<Route> findById(String id);
     Optional<Route> findByShortName(String routeName);
-    List<Route> findByRouteTypeId(long id);
+    List<Route> findByRouteTypeId(long id); // jak to działa? jak to jest użyte w tym DataImportService, bo nie rozumiem tam tego do końca? Nie powinno być przypadkiem: findAllByRouteTypeId?
 }

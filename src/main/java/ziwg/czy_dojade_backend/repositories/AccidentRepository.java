@@ -9,5 +9,6 @@ import java.util.Optional;
 @RepositoryRestResource
 public interface AccidentRepository extends JpaRepository<Accident, String> {
     boolean existsById(String id);
-    Optional<Accident> findByTripId(String id);
+//    Optional<Accident> findByTripId(String id);
+    Accident findByTripId(String id);
 }

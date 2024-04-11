@@ -226,21 +226,31 @@ public class AppUserService implements IAppUserService
                 reportDto.getAccidentDto().getAccLatitude(),
                 reportDto.getAccidentDto().getAccLongitude()
         );
-        Accident accident = accidentRepository.findByTripId(trip.getId())
-                .orElseGet(() -> {
-                    Accident newAccident = new Accident();
-                    newAccident.setAccLatitude(reportDto.getAccidentDto().getAccLatitude());
-                    newAccident.setAccLongitude(reportDto.getAccidentDto().getAccLongitude());
-                    newAccident.setVerified(false);
-                    newAccident.setTimeOfAccident(currentTime);
-                    newAccident.setTrip(trip);
-                    return accidentRepository.saveAndFlush(newAccident);
-                });
+        Accident accident = accidentRepository.findByTripId(trip.getId());
+//                .orElseGet(() -> {
+//                    Accident newAccident = new Accident();
+//                    newAccident.setAccLatitude(reportDto.getAccidentDto().getAccLatitude());
+//                    newAccident.setAccLongitude(reportDto.getAccidentDto().getAccLongitude());
+//                    newAccident.setVerified(false);
+//                    newAccident.setTimeOfAccident(currentTime);
+//                    newAccident.setTrip(trip);
+//                    return accidentRepository.saveAndFlush(newAccident);
+//                });
+        if (accident == null) {
+            accident = new Accident();
+            accident.setAccLatitude(reportDto.getAccidentDto().getAccLatitude());
+            accident.setAccLongitude(reportDto.getAccidentDto().getAccLongitude());
+            accident.setVerified(false);
+            accident.setTimeOfAccident(currentTime);
+            accident.setTrip(trip);
+            accidentRepository.saveAndFlush(accident);
+        }
 //            accident = AppUserServiceUtils.findNearestAccident(
 //                    accidents,
 //                    reportDto.getAccidentDto().getAccLatitude(),
 //                    reportDto.getAccidentDto().getAccLongitude()
 //            );
+
         if (!accident.isVerified()){
             List<Report> reports = reportRepository.findAllByAccident_Id(accident.getId());
             accident.setVerified(reports.size() >= 2);
