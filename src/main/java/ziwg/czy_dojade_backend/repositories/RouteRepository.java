@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RepositoryRestResource
-public interface RouteRepository extends JpaRepository<Route, Long>{
-    boolean existsById(Long routeId);
-    Optional<Route> findById(Long routeId);
+public interface RouteRepository extends JpaRepository<Route, String>{
+    boolean existsById(String id);
+    Optional<Route> findById(String id);
     Optional<Route> findByShortName(String routeName);
+    List<Route> findByRouteTypeId(long id);
 }

@@ -7,7 +7,7 @@ import ziwg.czy_dojade_backend.models.Accident;
 import java.util.Optional;
 
 @RepositoryRestResource
-public interface AccidentRepository extends JpaRepository<Accident, Long> {
-    boolean existsById(Long accidentId);
-    Optional<Accident> findByTripId(Long tripId);
+public interface AccidentRepository extends JpaRepository<Accident, String> {
+    boolean existsById(String id);
+    Optional<Accident> findByTripId(String id);
 }
