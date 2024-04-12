@@ -4,8 +4,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ziwg.czy_dojade_backend.exceptions.ErrorDetails;
+import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 
@@ -222,9 +226,13 @@ public class DataImportService {
                     optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 }
                 if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
-                    Trip trip = new Trip(values[2], values[3], Integer.parseInt(values[4]),
+                    Trip trip = new Trip(
+                            values[2],
+                            values[3],
+                            Integer.parseInt(values[4]),
                             optionalRoute.get(), optionalVehicle.get(),
                             accidentRepository.findByTripId(values[2]),
+//                                    .orElseThrow(() -> new NotFoundException("No accident found for trip with id " + values[2])),
                             stopTimeRepository.findByTripId(values[2]));
 
                     tripList.add(trip);

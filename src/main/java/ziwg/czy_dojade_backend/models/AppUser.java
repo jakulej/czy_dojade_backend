@@ -1,6 +1,7 @@
 package ziwg.czy_dojade_backend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "app_user")
+@JsonIgnoreProperties({"hashPassword"})
 public class AppUser {
 
     @Id

@@ -4,17 +4,25 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ziwg.czy_dojade_backend.dtos.reports.ReportCreationDto;
+import ziwg.czy_dojade_backend.dtos.reports.ReportDetailsDTO;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
+import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
+import ziwg.czy_dojade_backend.models.Report;
+import ziwg.czy_dojade_backend.models.Route;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 
+import javax.naming.LimitExceededException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class AppUserController {
     private final IAppUserService appUserService;
 
@@ -57,5 +65,31 @@ public class AppUserController {
     public ResponseEntity<AppUser> deleteUser(@PathVariable Long id) {
         return new ResponseEntity<>(appUserService.deleteUser(id), HttpStatus.OK);
     }
+
+    @PutMapping("/{id}/addRouteToFavourites/{routeName}")
+    public ResponseEntity<Route> addRouteToFavourites(@PathVariable Long id, @PathVariable String routeName) throws LimitExceededException, NotFoundException {
+        return new ResponseEntity<>(appUserService.addRouteToFavourites(id, routeName), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/removeRouteFromFavourites/{routeName}")
+    public ResponseEntity<Route> removeRouteFromFavourites(@PathVariable Long id, @PathVariable String routeName) {
+        return new ResponseEntity<>(appUserService.removeRouteFromFavourites(id, routeName), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/reportAccident")
+    public ResponseEntity<ReportDetailsDTO> reportAccident(@PathVariable Long id, @RequestBody ReportCreationDto reportDto) {
+        return new ResponseEntity<>(appUserService.reportAccident(id, reportDto), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/subscribe")
+    public ResponseEntity<Optional<AppUser>> subscribe(@PathVariable Long id) {
+        return new ResponseEntity<>(appUserService.subscribe(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/unsubscribe")
+    public ResponseEntity<Optional<AppUser>> unsubscribe(@PathVariable Long id) throws LimitExceededException {
+        return new ResponseEntity<>(appUserService.unsubscribe(id), HttpStatus.OK);
+    }
+
 
 }

@@ -6,13 +6,13 @@ VALUES
     ('user4', '$2a$10$ayVB2ZBv/ZR9AFeCy73gvOrhOCVejbPsg50Ufi9dIgBTTRjxVAca6', 'user4@example.com', 'Bob', 'Brown', false),      -- password4
     ('user5', '$2a$10$sMQqUBfqtF0baPzehx9AVuQNPUni4t45/pWztuixqNupYlXf0oz6W', 'user5@example.com', 'Emma', 'White', true);      -- password5
 
-INSERT INTO vehicle (curr_latitude, curr_longitude)
-VALUES
-    (52.2297, 21.0122),
-    (40.7128, -74.0060),
-    (51.5074, -0.1278),
-    (34.0522, -118.2437),
-    (35.6895, 139.6917);
+-- INSERT INTO vehicle (curr_latitude, curr_longitude)
+-- VALUES
+--     (52.2297, 21.0122),
+--     (40.7128, -74.0060),
+--     (51.5074, -0.1278),
+--     (34.0522, -118.2437),
+--     (35.6895, 139.6917);
 
 /*INSERT INTO route_type (type)
 VALUES

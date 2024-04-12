@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.naming.LimitExceededException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -30,5 +32,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handlePasswordMismatchException(BadCredentialsException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AlreadySubscribedException.class)
+    public ResponseEntity<ErrorDetails> handleAlreadSubscribedException(AlreadySubscribedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NotSubscribedException.class)
+    public ResponseEntity<ErrorDetails> handleNotSubscribedException(NotSubscribedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MaxFavouriteRoutesReachedException.class)
+    public ResponseEntity<ErrorDetails> handleMaxFavouriteRoutesReachedException(MaxFavouriteRoutesReachedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(LimitExceededException.class)
+    public ResponseEntity<ErrorDetails> handleLimitExceededException(LimitExceededException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorDetails> handleIOException(IOException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

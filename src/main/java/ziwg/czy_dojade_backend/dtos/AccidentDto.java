@@ -16,12 +16,7 @@ public class AccidentDto {
     @NotNull
     private double accLongitude;
 
-    @NotNull
-    private boolean isVerified;
-
-    @NotNull
-    private LocalDateTime timeOfAccident;
-
-    @NotNull
-    private TripDto tripDto;
+//    @NotNull
+//    private TripDto tripDto;
+    private String tripHeadsign;
 }
