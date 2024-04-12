@@ -133,10 +133,10 @@ public class DataImportService {
                 String[] values = line.split(",");
 
                 Stop stop = new Stop(Long.parseLong(values[0]), values[1],
-                        values[2], Double.parseDouble(values[3]), Double.parseDouble(values[4]),
+                        values[2].replaceAll("\"", ""), Double.parseDouble(values[3]), Double.parseDouble(values[4]),
                         stopTimeRepository.findByStopId(Long.parseLong(values[0])));
 
-                        stopList.add(stop);
+                stopList.add(stop);
             }
             stopRepository.saveAll(stopList);
 
@@ -157,7 +157,7 @@ public class DataImportService {
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
 
-                RouteType routeType = new RouteType(Long.parseLong(values[0]), values[1],
+                RouteType routeType = new RouteType(Long.parseLong(values[0]), values[1].replaceAll("\"", ""),
                         routeRepository.findByRouteTypeId(Long.parseLong(values[0])));
 
                 routeTypesList.add(routeType);
@@ -184,7 +184,7 @@ public class DataImportService {
                 Optional<RouteType> optionalRouteType = routeTypeRepository.findById(Long.valueOf(values[6]));
                 if (optionalRouteType.isPresent()) {
                     Route route = new Route(values[0],
-                            values[2], values[4],
+                            values[2].replaceAll("\"", ""), values[4].replaceAll("\"", ""),
                             tripRepository.findByRouteId(values[0]),
                             optionalRouteType.get());
 
@@ -226,13 +226,9 @@ public class DataImportService {
                     optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 }
                 if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
-                    Trip trip = new Trip(
-                            values[2],
-                            values[3],
-                            Integer.parseInt(values[4]),
+                    Trip trip = new Trip(values[2], values[3].replaceAll("\"", ""), Integer.parseInt(values[4]),
                             optionalRoute.get(), optionalVehicle.get(),
                             accidentRepository.findByTripId(values[2]),
-//                                    .orElseThrow(() -> new NotFoundException("No accident found for trip with id " + values[2])),
                             stopTimeRepository.findByTripId(values[2]));
 
                     tripList.add(trip);
