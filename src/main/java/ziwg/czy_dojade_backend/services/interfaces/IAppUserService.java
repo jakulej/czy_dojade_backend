@@ -1,5 +1,6 @@
 package ziwg.czy_dojade_backend.services.interfaces;
 
+import org.springframework.security.core.userdetails.UserDetailsService;
 import ziwg.czy_dojade_backend.dtos.reports.ReportCreationDto;
 import ziwg.czy_dojade_backend.dtos.reports.ReportDetailsDTO;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
