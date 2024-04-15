@@ -11,7 +11,6 @@ import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
-import ziwg.czy_dojade_backend.models.Report;
 import ziwg.czy_dojade_backend.models.Route;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 
