@@ -18,4 +18,9 @@ public class DataImportController {
     public ResponseEntity<String> importGTFS() {
         return new ResponseEntity<>(dataImportService.processZip(), HttpStatus.OK);
     }
+
+    @PostMapping("/importVehicles")
+    public ResponseEntity<String> importVehicles() {
+        return new ResponseEntity<>(dataImportService.importVehicles(), HttpStatus.OK);
+    }
 }

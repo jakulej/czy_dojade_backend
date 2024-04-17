@@ -91,16 +91,13 @@ public class DataImportService {
         }
     }
 
-    private void importVehicles() {
-        // Create RestTemplate instance
+    public String importVehicles() {
+        List<Vehicle> vehicles = new LinkedList<>();
         RestTemplate restTemplate = new RestTemplateBuilder().build();
-        // URL of the CSV file
         String url = "https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2";
 
-        // Make GET request and retrieve CSV as String
         String csvContent = restTemplate.getForObject(url, String.class);
 
-        // Parse CSV content using OpenCSV
         try (CSVReader csvReader = new CSVReader(new StringReader(csvContent))) {
             List<String[]> rows = csvReader.readAll();
 
@@ -109,15 +106,20 @@ public class DataImportService {
                 rows.remove(0);
             }
 
-            // Print each row
             for (String[] row : rows) {
-                System.out.println(row[3]);
+                Vehicle vehicle = new Vehicle(Long.parseLong(row[0]),
+                        Double.parseDouble(row[5]),
+                        Double.parseDouble(row[6]),
+                        tripRepository.findByVehicleId(Long.parseLong(row[0])));
+                vehicles.add(vehicle);
             }
+            vehicleRepository.saveAll(vehicles);
         } catch (CsvException e) {
             e.printStackTrace();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return "Vehicles coordinates imported.";
     }
 
     private void importStops(String directoryPath){
