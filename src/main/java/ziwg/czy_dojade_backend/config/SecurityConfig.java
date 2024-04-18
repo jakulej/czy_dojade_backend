@@ -17,6 +17,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ziwg.czy_dojade_backend.config.jwt.JWTAuthEntryPoint;
+import ziwg.czy_dojade_backend.config.jwt.JWTAuthenticationFilter;
+import ziwg.czy_dojade_backend.config.jwt.JWTGenerator;
 
 
 @Configuration
@@ -27,14 +31,24 @@ public class SecurityConfig {
 //    private UserDetailsService userDetailsService;
 //    @Autowired
 //    private AuthEntryPointJwt unauthorizedHandler;
-    private CustomUserDetailsService userDetailsService;
     @Autowired
     public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
+    @Autowired
+    private JWTGenerator tokenGenerator;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+    private JWTAuthEntryPoint authEntryPoint;
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public JWTAuthenticationFilter jwtAuthenticationFilter() {
+        return new JWTAuthenticationFilter(tokenGenerator, userDetailsService);
     }
 
 //    @Bean
@@ -62,18 +76,35 @@ public class SecurityConfig {
 //        this.userDetailsService = userDetailsService;
 //    }
 
+//    @Bean
+//    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.cors().and()
+//                .csrf().disable();
+//        http.authorizeHttpRequests()
+////                .anyRequest().authenticated()
+//                .anyRequest().permitAll();
+////        http
+////                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+////                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+////                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+////        http.headers().frameOptions().disable();
+//        return http.build();
+//    }
+
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors().and()
-                .csrf().disable();
-        http.authorizeHttpRequests()
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors().and().
+                csrf().disable()
+                .exceptionHandling().
+                authenticationEntryPoint(authEntryPoint).and()
+                .sessionManagement().sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS
+                ).and()
+                .authorizeHttpRequests()
 //                .anyRequest().authenticated()
-                .anyRequest().permitAll();
-//        http
-//                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
-//                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//        http.headers().frameOptions().disable();
+                .anyRequest().permitAll().and()
+                .httpBasic();
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

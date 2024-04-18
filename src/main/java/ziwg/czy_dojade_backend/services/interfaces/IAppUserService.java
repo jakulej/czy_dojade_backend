@@ -4,6 +4,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import ziwg.czy_dojade_backend.dtos.reports.ReportCreationDto;
 import ziwg.czy_dojade_backend.dtos.reports.ReportDetailsDTO;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
+import ziwg.czy_dojade_backend.dtos.user.AuthResponseDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;

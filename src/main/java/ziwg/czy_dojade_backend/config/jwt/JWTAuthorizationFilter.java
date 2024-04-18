@@ -1,4 +1,4 @@
-package ziwg.czy_dojade_backend.config;
+package ziwg.czy_dojade_backend.config.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
