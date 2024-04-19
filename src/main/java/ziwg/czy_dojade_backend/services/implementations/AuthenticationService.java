@@ -10,11 +10,14 @@ import ziwg.czy_dojade_backend.dtos.user.AuthenticationResponseDto;
 import ziwg.czy_dojade_backend.dtos.user.LoginDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
+import ziwg.czy_dojade_backend.exceptions.InvalidEmailAddressException;
+import ziwg.czy_dojade_backend.exceptions.InvalidPasswordException;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
 import ziwg.czy_dojade_backend.models.Role;
 import ziwg.czy_dojade_backend.repositories.AppUserRepository;
 import ziwg.czy_dojade_backend.services.interfaces.IAuthenticationService;
+import ziwg.czy_dojade_backend.utils.RegexUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +28,15 @@ public class AuthenticationService implements IAuthenticationService {
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
     @Override
-    public AuthenticationResponseDto register(SignUpDto request) throws AlreadyExistsException{
+    public AuthenticationResponseDto register(SignUpDto request) throws AlreadyExistsException, InvalidPasswordException, InvalidEmailAddressException{
         if (appUserRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExistsException("User with email " + request.getEmail() + " already exists");
+        }
+        if (!RegexUtil.isValidPassword(request.getHashPassword())) {
+            throw new InvalidPasswordException("Password must contain at least one digit, one uppercase letter, one lowercase letter, one special character and be between 8 and 30 characters long");
+        }
+        if (!RegexUtil.isValidEmail(request.getEmail())) {
+            throw new InvalidEmailAddressException("Invalid email address");
         }
 
         var user = AppUser.builder()
