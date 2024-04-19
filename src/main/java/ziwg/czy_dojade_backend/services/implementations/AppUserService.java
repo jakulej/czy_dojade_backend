@@ -1,8 +1,6 @@
 package ziwg.czy_dojade_backend.services.implementations;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ziwg.czy_dojade_backend.dtos.AccidentDto;
@@ -45,9 +43,6 @@ public class AppUserService implements IAppUserService
         if (appUserRepository.existsByEmail(user.getEmail())) {
             throw new AlreadyExistsException("User with email " + user.getEmail() + " already exists");
         }
-        else if (appUserRepository.existsByUsername(user.getUsername())) {
-            throw new AlreadyExistsException("User with username " + user.getUsername() + " already exists");
-        }
     }
 
     public AppUser validateChangePassword(ChangePasswordDto user) throws NotFoundException, BadCredentialsException {
@@ -72,10 +67,6 @@ public class AppUserService implements IAppUserService
     public boolean existsByEmail(String email) {
         return appUserRepository.existsByEmail(email);
     }
-    @Override
-    public boolean existsByUsername(String username) {
-        return appUserRepository.existsByUsername(username);
-    }
 
     @Override
     public List<AppUser> getAllUsers() { return appUserRepository.findAll(); }
@@ -91,30 +82,7 @@ public class AppUserService implements IAppUserService
                 .findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User with email " + email + " not found"));
     }
-    @Override
-    public AppUser getUserByUsername(String username) throws NotFoundException {
-        return appUserRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
-    }
 
-    @Override
-    public AppUser signUpUser(SignUpDto user) throws AlreadyExistsException {
-        String pswd = passwordEncoder.encode(CharBuffer.wrap(user.getHashPassword()));
-        user.setHashPassword(pswd);
-        validateSignUp(user);
-
-        AppUser newUser = new AppUser();
-        newUser.setFirstName(user.getFirstName());
-        newUser.setLastName(user.getLastName());
-        newUser.setUsername(user.getUsername());
-        newUser.setEmail(user.getEmail());
-        newUser.setHashPassword(user.getHashPassword());
-
-        user.clearPassword();
-        appUserRepository.saveAndFlush(newUser);
-        return newUser;
-    }
     @Override
     public AppUser updateUser(Long id, AppUserDto user) throws NotFoundException, AlreadyExistsException {
         Optional<AppUser> updatedUser = appUserRepository.findById(id);
@@ -122,7 +90,6 @@ public class AppUserService implements IAppUserService
             throw new NotFoundException("User with id " + id + " not found");
         }
 
-        updatedUser.get().setUsername(user.getUsername());
         updatedUser.get().setEmail(user.getEmail());
         updatedUser.get().setFirstName(user.getFirstName());
         updatedUser.get().setLastName(user.getLastName());

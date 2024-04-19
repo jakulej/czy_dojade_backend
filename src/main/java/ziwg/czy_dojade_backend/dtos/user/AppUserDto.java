@@ -7,8 +7,6 @@ import lombok.*;
 @Builder
 public class AppUserDto {
     @NotNull
-    private String username;
-    @NotNull
     private String email;
     @NotNull
     private String firstName;

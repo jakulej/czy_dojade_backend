@@ -12,12 +12,9 @@ import java.util.Optional;
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     boolean existsByEmail(String email);
-    boolean existsByUsername(String username);
     boolean existsByHashPassword(String hashPassword);
-    boolean existsByEmailAndUsername(String email, String username);
     boolean existsByEmailAndHashPassword(String email, String hashPassword);
     Optional<AppUser> findByEmail(String email);
-    Optional<AppUser> findByUsername(String username);
     List<AppUser> findAllBySubscriber(boolean subscriber);
     @Query("SELECT u.hashPassword FROM AppUser u")
     List<String> getAllHashedPasswords();

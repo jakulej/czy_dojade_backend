@@ -1,16 +1,12 @@
 package ziwg.czy_dojade_backend.services.interfaces;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
 import ziwg.czy_dojade_backend.dtos.reports.ReportCreationDto;
 import ziwg.czy_dojade_backend.dtos.reports.ReportDetailsDTO;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
-import ziwg.czy_dojade_backend.dtos.user.AuthResponseDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
-import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
 import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
-import ziwg.czy_dojade_backend.models.Report;
 import ziwg.czy_dojade_backend.models.Route;
 
 import javax.naming.LimitExceededException;
@@ -19,14 +15,11 @@ import java.util.Optional;
 
 public interface IAppUserService {
     boolean existsByEmail(String email);
-    boolean existsByUsername(String username);
 
     List<AppUser> getAllUsers();
     AppUser getUserById(Long id) throws NotFoundException;
     AppUser getUserByEmail(String email) throws NotFoundException;
-    AppUser getUserByUsername(String username) throws NotFoundException;
-
-    AppUser signUpUser(SignUpDto user) throws AlreadyExistsException;
+//    AppUser signUpUser(SignUpDto user) throws AlreadyExistsException;
     AppUser updateUser(Long id, AppUserDto user) throws NotFoundException, AlreadyExistsException;
     AppUser changePassword(ChangePasswordDto user) throws NotFoundException;
     AppUser deleteUser(Long id) throws NotFoundException;
