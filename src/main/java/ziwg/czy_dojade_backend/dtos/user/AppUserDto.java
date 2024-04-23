@@ -12,6 +12,4 @@ public class AppUserDto {
     private String firstName;
     @NotNull
     private String lastName;
-    @NotNull
-    private boolean subscriber;
 }

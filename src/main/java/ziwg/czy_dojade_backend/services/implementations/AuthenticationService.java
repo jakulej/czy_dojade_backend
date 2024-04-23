@@ -9,10 +9,7 @@ import ziwg.czy_dojade_backend.config.JWTService;
 import ziwg.czy_dojade_backend.dtos.user.AuthenticationResponseDto;
 import ziwg.czy_dojade_backend.dtos.user.LoginDto;
 import ziwg.czy_dojade_backend.dtos.user.SignUpDto;
-import ziwg.czy_dojade_backend.exceptions.AlreadyExistsException;
-import ziwg.czy_dojade_backend.exceptions.InvalidEmailAddressException;
-import ziwg.czy_dojade_backend.exceptions.InvalidPasswordException;
-import ziwg.czy_dojade_backend.exceptions.NotFoundException;
+import ziwg.czy_dojade_backend.exceptions.*;
 import ziwg.czy_dojade_backend.models.AppUser;
 import ziwg.czy_dojade_backend.models.Role;
 import ziwg.czy_dojade_backend.repositories.AppUserRepository;
@@ -55,12 +52,17 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public AuthenticationResponseDto authenticate(LoginDto request) throws NotFoundException {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getHashPassword()
-                )
-        );
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getHashPassword()
+                    )
+            );
+        }
+        catch (Exception e){
+            throw new BadCredentialsException("Invalid credentials");
+        }
 
         var user = appUserRepository
                 .findByEmail(request.getEmail())

@@ -8,6 +8,7 @@ import ziwg.czy_dojade_backend.dtos.reports.ReportCreationDto;
 import ziwg.czy_dojade_backend.dtos.reports.ReportDetailsDTO;
 import ziwg.czy_dojade_backend.dtos.user.AppUserDto;
 import ziwg.czy_dojade_backend.dtos.user.ChangePasswordDto;
+import ziwg.czy_dojade_backend.dtos.user.UpdateUserResponseDto;
 import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.AppUser;
 import ziwg.czy_dojade_backend.models.Route;
@@ -15,7 +16,6 @@ import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 
 import javax.naming.LimitExceededException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,13 +40,18 @@ public class AppUserController {
         return new ResponseEntity<>(appUserService.getUserByEmail(email), HttpStatus.OK);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<AppUser> getAuthenticatedUser() {
+        return new ResponseEntity<>(appUserService.getAuthenticatedUser(), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<AppUser> updateUser(@PathVariable Long id, @RequestBody AppUserDto user) {
+    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @RequestBody AppUserDto user) {
         return new ResponseEntity<>(appUserService.updateUser(id, user), HttpStatus.OK);
     }
 
     @PutMapping("/changePassword")
-    public ResponseEntity<AppUser> changePassword(@RequestBody ChangePasswordDto user) {
+    public ResponseEntity<UpdateUserResponseDto> changePassword(@RequestBody ChangePasswordDto user) {
         return new ResponseEntity<>(appUserService.changePassword(user), HttpStatus.OK);
     }
 
@@ -71,12 +76,12 @@ public class AppUserController {
     }
 
     @PutMapping("/{id}/subscribe")
-    public ResponseEntity<Optional<AppUser>> subscribe(@PathVariable Long id) {
+    public ResponseEntity<AppUser> subscribe(@PathVariable Long id) {
         return new ResponseEntity<>(appUserService.subscribe(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/unsubscribe")
-    public ResponseEntity<Optional<AppUser>> unsubscribe(@PathVariable Long id) throws LimitExceededException {
+    public ResponseEntity<AppUser> unsubscribe(@PathVariable Long id) throws LimitExceededException {
         return new ResponseEntity<>(appUserService.unsubscribe(id), HttpStatus.OK);
     }
 

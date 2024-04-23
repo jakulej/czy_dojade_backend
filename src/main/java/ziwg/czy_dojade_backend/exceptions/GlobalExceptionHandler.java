@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AlreadySubscribedException.class)
-    public ResponseEntity<ErrorDetails> handleAlreadSubscribedException(AlreadySubscribedException e, WebRequest request) {
+    public ResponseEntity<ErrorDetails> handleAlreadySubscribedException(AlreadySubscribedException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
@@ -65,21 +65,34 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(UsernameNotFoundException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ErrorDetails> handleInvalidPasswordException(InvalidPasswordException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(InvalidEmailAddressException.class)
     public ResponseEntity<ErrorDetails> handleInvalidEmailAddressException(InvalidEmailAddressException e, WebRequest request) {
         ErrorDetails errorDetails = getErrorDetails(e, request);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<ErrorDetails> handleUserNotAuthenticatedException(UserNotAuthenticatedException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UserMismatchException.class)
+    public ResponseEntity<ErrorDetails> handleUserMismatchException(UserMismatchException e, WebRequest request) {
+        ErrorDetails errorDetails = getErrorDetails(e, request);
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
 }

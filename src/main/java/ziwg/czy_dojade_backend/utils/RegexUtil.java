@@ -3,7 +3,7 @@ package ziwg.czy_dojade_backend.utils;
 public class RegexUtil {
 
     public static boolean isValidPassword(String password){
-        String regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,30}$";
+        String regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.,]).{8,30}$";
         return password.matches(regex);
     }
 
