@@ -16,7 +16,5 @@ public class AccidentDto {
     @NotNull
     private double accLongitude;
 
-//    @NotNull
-//    private TripDto tripDto;
     private String tripHeadsign;
 }

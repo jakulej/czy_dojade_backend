@@ -5,22 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import ziwg.czy_dojade_backend.models.AppUser;
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpDto {
+public class UpdateUserResponseDto {
     @NotNull
-    private String firstName;
+    private AppUser user;
     @NotNull
-    private String lastName;
-    @NotNull
-    private String email;
-    @NotNull
-    private String hashPassword;
-
-    public void clearPassword() {
-        hashPassword = "";
-    }
+    private String token;
 }

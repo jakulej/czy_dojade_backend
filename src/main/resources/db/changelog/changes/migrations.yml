@@ -343,3 +343,20 @@ databaseChangeLog:
           - dropColumn:
               columnName: end_time
               tableName: trip
+
+    - changeSet:
+        id: delete_username_app_user
+        author: Kuba
+        changes:
+          - dropColumn:
+                columnName: username
+                tableName: app_user
+          - addColumn:
+                tableName: app_user
+                columns:
+                    - column:
+                        name: role
+                        type: varchar(50)
+                        defaultValue: 'USER'
+                        constraints:
+                            nullable: false
