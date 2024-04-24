@@ -1,5 +1,6 @@
 package ziwg.czy_dojade_backend.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 @CrossOrigin(origins = "*")
+@Tag(name = "AppUserController", description = "Endpoints for managing users, reporting accidents etc")
 public class AppUserController {
 
     private final IAppUserService appUserService;
