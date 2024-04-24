@@ -1,15 +1,13 @@
 package ziwg.czy_dojade_backend.services.implementations;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import ziwg.czy_dojade_backend.exceptions.ErrorDetails;
-import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 
@@ -32,6 +30,7 @@ public class DataImportService {
     private final TripRepository tripRepository;
     private final VehicleRepository vehicleRepository;
     private final AccidentRepository accidentRepository;
+    private final ObjectMapper objectMapper;
 
     public String processZip() {
 
@@ -91,33 +90,52 @@ public class DataImportService {
         }
     }
 
-    private void importVehicles() {
-        // Create RestTemplate instance
-        RestTemplate restTemplate = new RestTemplateBuilder().build();
-        // URL of the CSV file
-        String url = "https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2";
+    /**
+     *  Temporarely k as id of vehicle. In "name" there is info about line number/letter
+     * @param key: busList[tram][] or busList[bus][]
+     * @param value: number/letter of line
+     * @return
+     */
+    public String importMpkLocalization(String key, String value) {
+        // URL and form data
+        String url = "https://mpk.wroc.pl/bus_position";
+        List<Vehicle> vehicles = new LinkedList<>();
 
-        // Make GET request and retrieve CSV as String
-        String csvContent = restTemplate.getForObject(url, String.class);
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add(key, value);
 
-        // Parse CSV content using OpenCSV
-        try (CSVReader csvReader = new CSVReader(new StringReader(csvContent))) {
-            List<String[]> rows = csvReader.readAll();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            // Ignore the first row
-            if (!rows.isEmpty()) {
-                rows.remove(0);
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+        try {
+            String responseBody = response.getBody();
+            if (responseBody != null) {
+                JsonNode jsonNode = objectMapper.readTree(responseBody);
+                if (jsonNode.isArray()) {
+                    for (JsonNode node : jsonNode) {
+                        Vehicle vehicle = new Vehicle(node.get("k").asLong(),
+                                node.get("x").asDouble(),
+                                node.get("y").asDouble(),
+                                null);
+                        vehicles.add(vehicle);
+                    }
+                }
             }
-
-            // Print each row
-            for (String[] row : rows) {
-                System.out.println(row[3]);
-            }
-        } catch (CsvException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        vehicleRepository.saveAll(vehicles);
+        return "Vehicles coordinates imported.";
     }
 
     private void importStops(String directoryPath){
