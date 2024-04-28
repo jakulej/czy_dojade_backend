@@ -29,8 +29,7 @@ public class AppUserController {
     private final IAppUserService appUserService;
 
     @Operation(
-            summary = "Retrieve all users",
-            tags = {"appuser", "get", "all"}
+            summary = "Retrieve all users"
     )
     @GetMapping
     public ResponseEntity<List<AppUser>> getAllUsers() {
@@ -38,8 +37,7 @@ public class AppUserController {
     }
 
     @Operation(
-            summary = "GET - Retrieve a single user by id",
-            tags = {"appuser", "get", "byId"}
+            summary = "GET - Retrieve a single user by id"
     )
     @GetMapping("/{id}")
     public ResponseEntity<AppUser> getUserById(@PathVariable Long id) {
@@ -47,8 +45,7 @@ public class AppUserController {
     }
 
     @Operation(
-            summary = "Retrieve a single user by email",
-            tags = {"appuser", "get", "byEmail"}
+            summary = "Retrieve a single user by email"
     )
     @GetMapping("/email/{email}")
     public ResponseEntity<AppUser> getUserByEmail(@PathVariable String email) {
@@ -58,8 +55,7 @@ public class AppUserController {
     @Operation(
             summary = "Retrieve a single authenticated user",
             description = "If a user is already authenticated, this method returns his object. " +
-                    "Otherwise, it throws a 'UserNotAuthenticatedException' exception.",
-            tags = {"appuser", "get", "authenticated", "me"}
+                    "Otherwise, it throws a 'UserNotAuthenticatedException' exception."
     )
     @GetMapping("/me")
     public ResponseEntity<AppUser> getAuthenticatedUser() {
@@ -73,8 +69,7 @@ public class AppUserController {
                     "- Throws 'NotFoundException' if id does not match to any user in database. \n" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id. \n\n" +
                     "Upon succeess it generates a new jwt token for an updated user, and then returns a 'UpdateUserResponseDto' object," +
-                    " which consists of the updated user data as 'AppUser' object and the new jwt token inside a String.",
-            tags = {"appuser", "update", "byId", "authenticated", "token"}
+                    " which consists of the updated user data as 'AppUser' object and the new jwt token inside a String."
     )
     @PutMapping("/{id}")
     public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @RequestBody AppUserDto user) {
@@ -92,8 +87,7 @@ public class AppUserController {
                     "   * new password and old password are the same\n" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by email.\n \n" +
                     "Upon succeess it generates a new jwt token for an updated user, and then returns a 'UpdateUserResponseDto' object," +
-                    " which consists of the updated user data as 'AppUser' object and the new jwt token inside a String.",
-            tags = {"appuser", "update", "password", "byEmail", "authenticated", "token"}
+                    " which consists of the updated user data as 'AppUser' object and the new jwt token inside a String."
     )
     @PutMapping("/changePassword")
     public ResponseEntity<UpdateUserResponseDto> changePassword(@RequestBody ChangePasswordDto user) {
@@ -105,8 +99,7 @@ public class AppUserController {
             description = "Delete a user by id. \n" +
                     "- Throws 'NotFoundException' if id does not match to any user in database. \n" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id,\n\n" +
-                    "Upon success it returns the deleted user object.",
-            tags = {"appuser", "delete", "byId"}
+                    "Upon success it returns the deleted user object."
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<AppUser> deleteUser(@PathVariable Long id) {
@@ -124,8 +117,7 @@ public class AppUserController {
                     "- Throws 'LimitExceededException' if either the user is not a subscriber and he has 3 favourite routes already," +
                         " or if he is a subscriber, and he has 10 favourite routes already\n" +
                     "- Throws 'AlreadyExistsException' if the route with a matching route name is already in the users favourites\n\n" +
-                    "Returns the route object that was added to the user favourites.",
-            tags = {"appuser", "update", "route", "favourites", "add"}
+                    "Returns the route object that was added to the user favourites."
     )
     @PutMapping("/{id}/addRouteToFavourites/{routeName}")
     public ResponseEntity<Route> addRouteToFavourites(@PathVariable Long id, @PathVariable String routeName) throws LimitExceededException, NotFoundException {
@@ -141,8 +133,7 @@ public class AppUserController {
                     "   * route name does not match any route in the database \n" +
                     "   * route name does not match any route in the user favourites" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id. \n\n" +
-                    "Returns the route object that was removed from the user favourites.",
-            tags = {"appuser", "update", "route", "favourites", "remove"}
+                    "Returns the route object that was removed from the user favourites."
     )
     @PutMapping("/{id}/removeRouteFromFavourites/{routeName}")
     public ResponseEntity<Route> removeRouteFromFavourites(@PathVariable Long id, @PathVariable String routeName) {
@@ -159,8 +150,7 @@ public class AppUserController {
                     "   * report creation request body was not passed\n" +
                     "   * a trip with a matching trip headsign is not found in the database\n" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id. \n\n" +
-                    "Returns a 'ReportDetailsDTO' object, which consists of (description: String, timeOfReport: LocalDateTime, accidentDto: AccidentDto, userId: Long).",
-            tags = {"appuser", "update", "report", "accident", "add", "byId"}
+                    "Returns a 'ReportDetailsDTO' object, which consists of (description: String, timeOfReport: LocalDateTime, accidentDto: AccidentDto, userId: Long)."
     )
     @PostMapping("/{id}/reportAccident")
     public ResponseEntity<ReportDetailsDTO> reportAccident(@PathVariable Long id, @RequestBody ReportCreationDto reportDto) {
@@ -173,8 +163,7 @@ public class AppUserController {
                     "- Throws 'NotFoundException' if id does not match to any user in database. \n" +
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id,\n" +
                     "- Throws 'AlreadySubscribedException' if the user already is a subscriber\n\n" +
-                    "Returns the updated user object.",
-            tags = {"appuser", "update", "subscription", "byId"}
+                    "Returns the updated user object."
     )
     @PutMapping("/{id}/subscribe")
     public ResponseEntity<AppUser> subscribe(@PathVariable Long id) {
@@ -188,8 +177,7 @@ public class AppUserController {
                     "- Throws 'UserMismatchException' if the data inside the jwt token does not match with what was retrieved from the database by id,\n" +
                     "- Throws 'NotSubscribedException' if the user is not a subscriber yet\n" +
                     "- Throws 'LimitExceededException' if the user has more than 3 favourite routes at the moment of unsubscribing - you have to decrease it to 3 or less for the unsubscription to go through\n\n" +
-                    "Returns the updated user object.",
-            tags = {"appuser", "update", "subscription", "byId"}
+                    "Returns the updated user object."
     )
     @PutMapping("/{id}/unsubscribe")
     public ResponseEntity<AppUser> unsubscribe(@PathVariable Long id) throws LimitExceededException {

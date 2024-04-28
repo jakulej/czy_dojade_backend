@@ -24,25 +24,27 @@ public class AuthenticationController {
     private final AuthenticationService authService;
 
     @PostMapping("/register")
-    @Operation(summary = "Register into our system", description = "Register into the app " +
-            "by creating a new user for you. <br>" +
-            " Requires a SignUpDto object which is of structure: <br>" +
-            " {\"firstName\": \"string\", \"lastName\": \"string\", \"email\": \"string\", \"hashPassword\": \"string\"} <br>" +
-            " Returns an AuthenticationResponseDto object which is of structure: <br> " +
-            "{\"token\": \"string\"} <br>" +
-            "which is a jwt token used for future authentication")
+    @Operation(
+            summary = "Register into our system",
+            description = "Register into the app by creating a new user for you." +
+            " Requires a SignUpDto object which is of structure: (firstName: String, lastName: String, email: String, hashPassword: String)\n" +
+            "- Throws 'AlreadyExistsException' if the user already exists\n" +
+            "- Throws 'InvalidPasswordException' if the password does not match the regular expression requirements\n" +
+            "- Throws 'InvalidEmailAddressException' if the email does not match the regular expression requirements\n\n" +
+            " Returns an AuthenticationResponseDto object of structure: (token: String) which is a jwt token used for future authentication and is valid for 1 hour")
     public ResponseEntity<AuthenticationResponseDto> register(@RequestBody SignUpDto request){
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
     }
 
     @PostMapping("/authenticate")
-    @Operation(summary = "Login into our system", description = "Authenticate into the app " +
-            "by providing your email and password. <br>" +
-            " Requires a LoginDto object which is of structure: <br>" +
-            " {\"email\": \"string\", \"hashPassword\": \"string\"} <br>" +
-            " Returns an AuthenticationResponseDto object which is of structure: <br> " +
-            "{\"token\": \"string\"} <br>" +
-            "which is a jwt token used for future authentication")
+    @Operation(
+            summary = "Login into our system",
+            description = "Authenticate into the app by providing your email and password." +
+            " Requires a LoginDto object which is of structure: (email: String, hashPassword: String)\n" +
+            "- Throws 'BadCredentialsException' if either password or email dont match with the jwt token data\n" +
+            "- Throws 'NotFoundException' if user with provided email was not found in the database \n\n" +
+            " Returns an AuthenticationResponseDto object which is of structure: (token: String) " +
+            "which is a jwt token used for future authentication and lasts for 1 hour")
     public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody LoginDto request){
         return new ResponseEntity<>(authService.authenticate(request), HttpStatus.OK);
     }
