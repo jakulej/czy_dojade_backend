@@ -31,7 +31,7 @@ public class AppUserServiceUtils {
         return (AppUser) auth.getPrincipal();
     }
 
-    public static AppUser validateChangePassword(PasswordEncoder passwordEncoder, AppUserRepository appUserRepository, ChangePasswordDto user) throws NotFoundException, BadCredentialsException {
+    public static AppUser validateChangePassword(PasswordEncoder passwordEncoder, AppUserRepository appUserRepository, ChangePasswordDto user) throws NotFoundException, BadCredentialsException, UserMismatchException {
         Optional<AppUser> updatedUser = appUserRepository.findByEmail(user.getEmail());
         AppUser authenticatedUser = getAuthenticatedUser();
 
