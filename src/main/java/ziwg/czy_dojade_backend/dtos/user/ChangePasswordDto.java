@@ -1,16 +1,15 @@
 package ziwg.czy_dojade_backend.dtos.user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Arrays;
 
 @Data
 @AllArgsConstructor
 @Builder
+@Schema(description = "Data transfer object for changing user's password")
 public class ChangePasswordDto {
     @NotNull
     private String email;
