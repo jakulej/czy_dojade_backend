@@ -18,10 +18,7 @@ import ziwg.czy_dojade_backend.repositories.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -97,26 +94,42 @@ public class DataImportService {
     }
     @PostConstruct
     public String importFromCzyNaCzas() throws JsonProcessingException {
+        List<Vehicle> vehicles = new LinkedList<>();
+
         ObjectMapper objectMapper = new ObjectMapper();
         Path path1 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live.json");
         Path path2 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live2.json");
 
         File jsonFile = new File(path1.toString());
         try {
-            // Read JSON data into a Map<String, Map<String, Object>>
+            // Read JSON data from file into a Map<String, Map<String, Object>>
             Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
             // Access the nested data
             Map<String, Object> innerMap = dataMap.get("data");
             for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
                 // Convert each inner map to JSON string
                 String innerJson = objectMapper.writeValueAsString(entry.getValue());
-                // Print each entry
-                System.out.println("Key: " + entry.getKey() + ", Value: " + innerJson);
+                // Parse innerJson to extract key-value pairs
+                JsonNode jsonNode = objectMapper.readTree(innerJson);
+                Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
+                Vehicle vehicle = new Vehicle();
+                while (fieldsIterator.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fieldsIterator.next();
+                    // Extract key-value pairs
+                    String key = field.getKey();
+                    JsonNode value = field.getValue();
+                    // Process key-value pairs as needed
+                    System.out.println("Key: " + key + ", Value: " + value);
+                    if ("lat".equals(key)) {
+                        // Process latitude value
+                        double latitude = value.asDouble();
+                        vehicle.setCurrLatitude(latitude);
+                        System.out.println("Latitude: " + latitude);
+                    }
+                }
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         return "Imported from czynaczas.pl";
