@@ -1,5 +1,6 @@
 package ziwg.czy_dojade_backend.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,5 +23,10 @@ public class DataImportController {
     @PostMapping("/importMpkLocalization")
     public ResponseEntity<String> importMpkLocalization() {
         return new ResponseEntity<>(dataImportService.importMpkLocalization("busList[tram][]", "1"), HttpStatus.OK);
+    }
+
+    @GetMapping("/importCzyNaCzas")
+    public ResponseEntity<String> importCzyNaCzas() throws JsonProcessingException {
+        return new ResponseEntity<>(dataImportService.importFromCzyNaCzas(), HttpStatus.OK);
     }
 }

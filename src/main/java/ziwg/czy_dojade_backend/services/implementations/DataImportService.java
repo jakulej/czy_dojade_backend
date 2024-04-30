@@ -1,7 +1,9 @@
 package ziwg.czy_dojade_backend.services.implementations;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ziwg.czy_dojade_backend.models.*;
+import ziwg.czy_dojade_backend.models.VehicleData.VehicleData;
+import ziwg.czy_dojade_backend.models.VehicleData.VehicleDataDetails;
 import ziwg.czy_dojade_backend.repositories.*;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -88,6 +94,32 @@ public class DataImportService {
                 }
             }
         }
+    }
+    @PostConstruct
+    public String importFromCzyNaCzas() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Path path1 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live.json");
+        Path path2 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live2.json");
+
+        File jsonFile = new File(path1.toString());
+        try {
+            // Read JSON data into a Map<String, Map<String, Object>>
+            Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
+            // Access the nested data
+            Map<String, Object> innerMap = dataMap.get("data");
+            for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
+                // Convert each inner map to JSON string
+                String innerJson = objectMapper.writeValueAsString(entry.getValue());
+                // Print each entry
+                System.out.println("Key: " + entry.getKey() + ", Value: " + innerJson);
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "Imported from czynaczas.pl";
     }
 
     /**
