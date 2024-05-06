@@ -4,14 +4,11 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ziwg.czy_dojade_backend.exceptions.ErrorDetails;
-import ziwg.czy_dojade_backend.exceptions.NotFoundException;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
+import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
 
 import java.io.*;
 import java.time.LocalTime;
@@ -256,8 +253,8 @@ public class DataImportService {
                 Optional<Stop> optionalStop = stopRepository.findById(Long.valueOf(values[3]));
                 Optional<Trip> optionalTrip = tripRepository.findById(values[0]);
                 if (optionalStop.isPresent() && optionalTrip.isPresent()) {
-                    LocalTime arrive = parseTime(values[1]);
-                    LocalTime departure = parseTime(values[2]);
+                    LocalTime arrive = DateTimeAndTimeParser.parseTime(values[1]);
+                    LocalTime departure = DateTimeAndTimeParser.parseTime(values[2]);
                     StopTime stopTime = new StopTime();
                     stopTime.setArrivalTime(arrive);
                     stopTime.setDepartureTime(departure);
@@ -274,24 +271,6 @@ public class DataImportService {
         }
     }
 
-    public static LocalTime parseTime(String timeStr) {
-        // Split the time string by ":" to extract hours, minutes, and seconds
-        String[] timeParts = timeStr.split(":");
-        int hours = Integer.parseInt(timeParts[0]);
-        int minutes = Integer.parseInt(timeParts[1]);
-        int seconds = Integer.parseInt(timeParts[2]);
-
-        // Adjust hours if it exceeds 23
-        if (hours == 24 && minutes == 0 && seconds == 0) {
-            // Treat "24:00:00" as equivalent to "00:00:00" of the next day
-            return LocalTime.MIDNIGHT;
-        } else if (hours >= 24) {
-            // Subtract 24 hours to make it a valid time of the next day
-            hours -= 24;
-        }
-
-        return LocalTime.of(hours, minutes, seconds);
-    }
 }
 
 

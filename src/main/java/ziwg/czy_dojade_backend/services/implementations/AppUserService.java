@@ -17,6 +17,7 @@ import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.services.interfaces.IAppUserService;
 import ziwg.czy_dojade_backend.utils.AppUserServiceUtils;
+import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
 
 import javax.naming.LimitExceededException;
 import java.time.LocalDateTime;
@@ -165,7 +166,7 @@ public class AppUserService implements IAppUserService
             throw new NotFoundException("Trip with headsign: " + reportDto.getAccidentDto().getTripHeadsign() + " not found");
         }
 
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = DateTimeAndTimeParser.parseDateTime(LocalDateTime.now());
 
         Trip trip = AppUserServiceUtils.findNearestTrip(
                 trips,
