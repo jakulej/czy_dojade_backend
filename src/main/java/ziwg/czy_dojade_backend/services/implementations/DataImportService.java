@@ -11,8 +11,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ziwg.czy_dojade_backend.models.*;
-import ziwg.czy_dojade_backend.models.VehicleData.VehicleData;
-import ziwg.czy_dojade_backend.models.VehicleData.VehicleDataDetails;
 import ziwg.czy_dojade_backend.repositories.*;
 
 import java.io.*;
@@ -100,31 +98,39 @@ public class DataImportService {
         Path path1 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live.json");
         Path path2 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live2.json");
 
-        File jsonFile = new File(path1.toString());
+        File jsonFile = new File(path2.toString());
         try {
-            // Read JSON data from file into a Map<String, Map<String, Object>>
             Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
             // Access the nested data
             Map<String, Object> innerMap = dataMap.get("data");
             for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
-                // Convert each inner map to JSON string
-                String innerJson = objectMapper.writeValueAsString(entry.getValue());
-                // Parse innerJson to extract key-value pairs
-                JsonNode jsonNode = objectMapper.readTree(innerJson);
+                // vehicleJson - each vehicle in json with vehicles
+                String vehicleJson = objectMapper.writeValueAsString(entry.getValue());
+                System.out.println(entry.getKey());
+                // Parse vehicleJson to extract key-value pairs
+                JsonNode jsonNode = objectMapper.readTree(vehicleJson);
                 Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
                 Vehicle vehicle = new Vehicle();
                 while (fieldsIterator.hasNext()) {
                     Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                    // Extract key-value pairs
                     String key = field.getKey();
                     JsonNode value = field.getValue();
-                    // Process key-value pairs as needed
-                    System.out.println("Key: " + key + ", Value: " + value);
                     if ("lat".equals(key)) {
-                        // Process latitude value
-                        double latitude = value.asDouble();
-                        vehicle.setCurrLatitude(latitude);
-                        System.out.println("Latitude: " + latitude);
+                        double lat = value.asDouble();
+                        vehicle.setCurrLatitude(lat);
+                    }
+                    if ("lon".equals(key)) {
+                        double lon = value.asDouble();
+                        vehicle.setCurrLongitude(lon);
+                    }
+                    if ("id".equals(key)) {
+                        String id = value.asText();
+                        vehicle.setId(id);
+                    }
+                    if ("trip_id".equals(key)) {
+                        String id = value.asText();
+                        vehicle.setId(id);
+                        vehicle.setTrip(tripRepository.findById(key));
                     }
                 }
             }
@@ -168,7 +174,7 @@ public class DataImportService {
                 JsonNode jsonNode = objectMapper.readTree(responseBody);
                 if (jsonNode.isArray()) {
                     for (JsonNode node : jsonNode) {
-                        Vehicle vehicle = new Vehicle(node.get("k").asLong(),
+                        Vehicle vehicle = new Vehicle(node.get("k").asText(),
                                 node.get("x").asDouble(),
                                 node.get("y").asDouble(),
                                 null);
@@ -265,7 +271,7 @@ public class DataImportService {
      * Temporary method to create sample vehicles in database
      * @param id
      */
-    private void createSampleVehicle(long id){
+    private void createSampleVehicle(String id){
         Vehicle vehicle = new Vehicle(id, 50.0, 50.0, tripRepository.findByVehicleId(id));
         vehicleRepository.save(vehicle);
     }
@@ -285,7 +291,7 @@ public class DataImportService {
                 Optional<Route> optionalRoute = routeRepository.findById(values[0]);
                 Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 if(optionalVehicle.isEmpty()){
-                    createSampleVehicle(Long.parseLong(values[7]));
+                    createSampleVehicle(values[7]);
                     optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 }
                 if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
