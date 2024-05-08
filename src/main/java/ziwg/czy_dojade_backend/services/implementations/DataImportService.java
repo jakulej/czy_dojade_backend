@@ -130,7 +130,7 @@ public class DataImportService {
                     if ("trip_id".equals(key)) {
                         String id = value.asText();
                         vehicle.setId(id);
-                        vehicle.setTrip(tripRepository.findById(key));
+                        vehicle.setTrip(tripRepository.findByVehicleId(vehicle.getId()));
                     }
                 }
             }
