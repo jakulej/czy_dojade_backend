@@ -17,7 +17,7 @@ public class Vehicle {
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private String id;
+    private long id;
 
     @Column(name = "curr_latitude")
     private double currLatitude;

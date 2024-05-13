@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 
@@ -90,15 +92,42 @@ public class DataImportService {
             }
         }
     }
-    @PostConstruct
+
+    public File getCzyNaCzasFile() {
+        String apiUrl = "https://czynaczas.pl/api/wroclaw/single-live-vehicle/premium/2769e83f-fd5e-4669-b5fd-59ce08f56144";
+        WebClient webClient = WebClient.create();
+        
+        Mono<byte[]> responseMono = webClient.get()
+                .uri(apiUrl)
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .bodyToMono(byte[].class);
+
+        byte[] fileBytes = responseMono.block();
+
+        if (fileBytes != null) {
+            try {
+                File tempFile = File.createTempFile("tempFile", ".tmp");
+
+                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                    fos.write(fileBytes);
+                }
+                return tempFile;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            System.out.println("Error: Received null byte array from the API");
+            return null;
+        }
+    }
+
     public String importFromCzyNaCzas() throws JsonProcessingException {
         List<Vehicle> vehicles = new LinkedList<>();
-
         ObjectMapper objectMapper = new ObjectMapper();
-        Path path1 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live.json");
-        Path path2 = Path.of("C:\\Users\\macie\\OneDrive\\Pulpit\\wroclaw-live2.json");
 
-        File jsonFile = new File(path2.toString());
+        File jsonFile = getCzyNaCzasFile();
         try {
             Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
             // Access the nested data
@@ -174,7 +203,7 @@ public class DataImportService {
                 JsonNode jsonNode = objectMapper.readTree(responseBody);
                 if (jsonNode.isArray()) {
                     for (JsonNode node : jsonNode) {
-                        Vehicle vehicle = new Vehicle(node.get("k").asText(),
+                        Vehicle vehicle = new Vehicle(node.get("k").asLong(),
                                 node.get("x").asDouble(),
                                 node.get("y").asDouble(),
                                 null);
@@ -271,7 +300,7 @@ public class DataImportService {
      * Temporary method to create sample vehicles in database
      * @param id
      */
-    private void createSampleVehicle(String id){
+    private void createSampleVehicle(long id){
         Vehicle vehicle = new Vehicle(id, 50.0, 50.0, tripRepository.findByVehicleId(id));
         vehicleRepository.save(vehicle);
     }
@@ -291,7 +320,7 @@ public class DataImportService {
                 Optional<Route> optionalRoute = routeRepository.findById(values[0]);
                 Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 if(optionalVehicle.isEmpty()){
-                    createSampleVehicle(values[7]);
+                    createSampleVehicle(Long.parseLong(values[7]));
                     optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
                 }
                 if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
