@@ -28,7 +28,6 @@ public class DataImportService {
     private final TripRepository tripRepository;
     private final VehicleRepository vehicleRepository;
     private final AccidentRepository accidentRepository;
-    private final ObjectMapper objectMapper;
 
     public String processZip() {
 
@@ -88,7 +87,7 @@ public class DataImportService {
         }
     }
 
-    public File getCzyNaCzasFile() {
+    public File getFileWithCoordinates() {
         String apiUrl = "https://czynaczas.pl/api/wroclaw/single-live-vehicle/premium/2769e83f-fd5e-4669-b5fd-59ce08f56144";
         WebClient webClient = WebClient.create();
         
@@ -118,11 +117,11 @@ public class DataImportService {
         }
     }
 
-    public String importFromCzyNaCzas() {
+    public String importVehicleCoordinates() {
         List<Vehicle> vehicles = new LinkedList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
-        File jsonFile = getCzyNaCzasFile();
+        File jsonFile = getFileWithCoordinates();
         try {
             Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
             // Access the nested data
