@@ -19,8 +19,8 @@ public class DataImportController {
         return new ResponseEntity<>(dataImportService.processZip(), HttpStatus.OK);
     }
 
-    @GetMapping("/importCzyNaCzas")
-    public ResponseEntity<String> importCzyNaCzas() {
+    @GetMapping("/importCoords")
+    public ResponseEntity<String> importVehicleCoordinates() {
         return new ResponseEntity<>(dataImportService.importVehicleCoordinates(), HttpStatus.OK);
     }
 }
