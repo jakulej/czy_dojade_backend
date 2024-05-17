@@ -20,13 +20,8 @@ public class DataImportController {
         return new ResponseEntity<>(dataImportService.processZip(), HttpStatus.OK);
     }
 
-    @PostMapping("/importMpkLocalization")
-    public ResponseEntity<String> importMpkLocalization() {
-        return new ResponseEntity<>(dataImportService.importMpkLocalization("busList[tram][]", "1"), HttpStatus.OK);
-    }
-
     @GetMapping("/importCzyNaCzas")
-    public ResponseEntity<String> importCzyNaCzas() throws JsonProcessingException {
+    public ResponseEntity<String> importCzyNaCzas() {
         return new ResponseEntity<>(dataImportService.importFromCzyNaCzas(), HttpStatus.OK);
     }
 }

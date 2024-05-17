@@ -1,14 +1,10 @@
 package ziwg.czy_dojade_backend.services.implementations;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,7 +12,6 @@ import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -123,7 +118,7 @@ public class DataImportService {
         }
     }
 
-    public String importFromCzyNaCzas() throws JsonProcessingException {
+    public String importFromCzyNaCzas() {
         List<Vehicle> vehicles = new LinkedList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -135,7 +130,6 @@ public class DataImportService {
             for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
                 // vehicleJson - each vehicle in json with vehicles
                 String vehicleJson = objectMapper.writeValueAsString(entry.getValue());
-                System.out.println(entry.getKey());
                 // Parse vehicleJson to extract key-value pairs
                 JsonNode jsonNode = objectMapper.readTree(vehicleJson);
                 Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
@@ -154,68 +148,34 @@ public class DataImportService {
                     }
                     if ("id".equals(key)) {
                         String id = value.asText();
-                        vehicle.setId(id);
+                        String[] parts = id.split("/");
+                        int idInt = Integer.parseInt(parts[1]);
+                        vehicle.setId(idInt);
                     }
                     if ("trip_id".equals(key)) {
-                        String id = value.asText();
-                        vehicle.setId(id);
-                        vehicle.setTrip(tripRepository.findByVehicleId(vehicle.getId()));
+                        String tripId = value.asText();
+                        vehicle.setTrip(tripRepository.findAllById(tripId));
+                    }
+                    if ("delay".equals(key)) {
+                        long delay = value.asLong();
+                        vehicle.setDelay(delay);
+                    }
+                    if ("type".equals(key)) {
+                        long type = value.asLong();
+                        vehicle.setType(type);
                     }
                 }
+                if (vehicle.getDelay() == null)
+                    vehicle.setDelay(0L);
+
+                vehicles.add(vehicle);
             }
+            vehicleRepository.saveAll(vehicles);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return "Imported from czynaczas.pl";
-    }
-
-    /**
-     *  Temporarely k as id of vehicle. In "name" there is info about line number/letter
-     * @param key: busList[tram][] or busList[bus][]
-     * @param value: number/letter of line
-     * @return
-     */
-    public String importMpkLocalization(String key, String value) {
-        // URL and form data
-        String url = "https://mpk.wroc.pl/bus_position";
-        List<Vehicle> vehicles = new LinkedList<>();
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add(key, value);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-        try {
-            String responseBody = response.getBody();
-            if (responseBody != null) {
-                JsonNode jsonNode = objectMapper.readTree(responseBody);
-                if (jsonNode.isArray()) {
-                    for (JsonNode node : jsonNode) {
-                        Vehicle vehicle = new Vehicle(node.get("k").asLong(),
-                                node.get("x").asDouble(),
-                                node.get("y").asDouble(),
-                                null);
-                        vehicles.add(vehicle);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        vehicleRepository.saveAll(vehicles);
-        return "Vehicles coordinates imported.";
     }
 
     private void importStops(String directoryPath){
@@ -301,7 +261,7 @@ public class DataImportService {
      * @param id
      */
     private void createSampleVehicle(long id){
-        Vehicle vehicle = new Vehicle(id, 50.0, 50.0, tripRepository.findByVehicleId(id));
+        Vehicle vehicle = new Vehicle(id, 50.0, 50.0,0L,null, tripRepository.findByVehicleId(id));
         vehicleRepository.save(vehicle);
     }
 

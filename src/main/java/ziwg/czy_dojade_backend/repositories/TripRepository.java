@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface TripRepository extends JpaRepository<Trip, String> {
     boolean existsById(String id);
     Optional<Trip> findById(String id);
+
+    List<Trip> findAllById(String id);
     List<Trip> findAllByTripHeadsign(String tripHeadsign);
 
     List<Trip> findByRouteId(String id);
