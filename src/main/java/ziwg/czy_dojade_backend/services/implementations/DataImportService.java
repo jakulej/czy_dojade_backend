@@ -43,10 +43,18 @@ public class DataImportService {
         String zipUrl = "https://www.wroclaw.pl/open-data/87b09b32-f076-4475-8ec9-6020ed1f9ac0/OtwartyWroclaw_rozklad_jazdy_GTFS.zip";
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            byte[] zipData = restTemplate.getForObject(zipUrl, byte[].class);
+            importRouteTypeNew();
+            importTripDestinationNew();
+            importRouteNew();
+            importStopsNew();
+            importRouteStopNew();
+            importTripNew();
+            importScheduleStopTimeNew();
 
-            unzip(zipData);
+            //RestTemplate restTemplate = new RestTemplate();
+            //byte[] zipData = restTemplate.getForObject(zipUrl, byte[].class);
+
+            //unzip(zipData);
 
             //String resourcesDirectory = getClass().getResource("/").getPath();
             //String extractPath = resourcesDirectory + "GTFS";
@@ -398,11 +406,11 @@ public class DataImportService {
                 String[] values = line.split(",");
                 Optional<TripDestination> tripDestination = tripDestinationRepository.findById(Long.valueOf(values[4]));
                 Optional<Route> route = routeRepository.findById(values[2]);
-                Optional<Vehicle> vehicle = vehicleRepository.findById(Long.valueOf(values[3]));
+                Vehicle vehicle = vehicleRepository.findById(Long.valueOf(values[3])).orElse(null);
 
-                if(tripDestination.isPresent() && vehicle.isPresent() && route.isPresent()){
+                if(tripDestination.isPresent() && route.isPresent()){
                     Trip trip = new Trip(values[0], tripDestination.get(),
-                            Integer.parseInt(values[1]),route.get() , vehicle.get(),
+                            Integer.parseInt(values[1]),route.get() , vehicle,
                             accidentRepository.findByTripId(values[0]));
 
                     tripList.add(trip);
@@ -454,7 +462,8 @@ public class DataImportService {
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
 
-                RouteType routeType = new RouteType(values[0], values[1], routeRepository.findByRouteTypeId(values[0]));
+                RouteType routeType = new RouteType(Long.parseLong(values[0]), values[1],
+                        routeRepository.findByRouteTypeId(Long.parseLong(values[0])));
 
                 routeTypeList.add(routeType);
             }
@@ -476,8 +485,9 @@ public class DataImportService {
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
-
-                Route route = new Route(values[0], routeTypeRepository.findById(values[1]), tripRepository.findByRouteId(values[0]));
+                RouteType routeType = routeTypeRepository.findById(Long.valueOf(values[1])).orElse(null);
+                Route route = new Route(values[0], routeType,
+                        tripRepository.findByRouteId(values[0]));
 
                 routeList.add(route);
             }

@@ -31,7 +31,7 @@ public class Trip {
     @ManyToOne(fetch = FetchType.EAGER)
     private Route route;
 
-    @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private Vehicle vehicle;
