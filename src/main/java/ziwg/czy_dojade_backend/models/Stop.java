@@ -15,7 +15,6 @@ import java.util.List;
 public class Stop {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
@@ -32,6 +31,6 @@ public class Stop {
     private double longitude;
 
     @OneToMany(mappedBy = "stop", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StopTime> stopTimes;
+    private List<ScheduleStopTime> scheduleStopTimes;
 
 }

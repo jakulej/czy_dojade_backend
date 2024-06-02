@@ -16,12 +16,13 @@ import java.util.List;
 public class Trip {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private String id;
 
-    @Column(name = "trip_headsign")
-    private String tripHeadsign;
+    @JoinColumn(name = "trip_destination_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
+    private TripDestination tripDestination;
 
     @Column(name = "direction_id")
     private int directionId;
@@ -37,8 +38,5 @@ public class Trip {
 
     @OneToOne(mappedBy = "trip", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Accident accident;
-
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StopTime> stopTimes;
 
 }

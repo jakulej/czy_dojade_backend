@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
@@ -31,7 +30,13 @@ public class DataImportService {
     private final VehicleRepository vehicleRepository;
     private final AccidentRepository accidentRepository;
 
-    public String processZip() {
+    private final TripDestinationRepository tripDestinationRepository;
+
+    private final String resourcesDirectory = getClass().getResource("/").getPath();
+    private final String extractPath = resourcesDirectory + "GTFS";
+    private final String outputPath = resourcesDirectory + "output_data";
+
+    public String importGTFSData() {
 
         String zipUrl = "https://www.wroclaw.pl/open-data/87b09b32-f076-4475-8ec9-6020ed1f9ac0/OtwartyWroclaw_rozklad_jazdy_GTFS.zip";
 
@@ -41,14 +46,14 @@ public class DataImportService {
 
             unzip(zipData);
 
-            String resourcesDirectory = getClass().getResource("/").getPath();
-            String extractPath = resourcesDirectory + "GTFS";
+            //String resourcesDirectory = getClass().getResource("/").getPath();
+            //String extractPath = resourcesDirectory + "GTFS";
 
-            importRouteTypes(extractPath);
-            importStops(extractPath);
-            importRoutes(extractPath);
-            importTrips(extractPath);
-            importStopTimes(extractPath);
+            //importRouteTypes(extractPath);
+            //importStops(extractPath);
+            //importRoutes(extractPath);
+            //importTrips(extractPath);
+            //importStopTimes(extractPath);
 
             return "Files processed successfully.";
         } catch (Exception e) {
@@ -179,7 +184,7 @@ public class DataImportService {
         return "Imported from czynaczas.pl";
     }
 
-    private void importStops(String directoryPath){
+    /*private void importStops(String directoryPath){
         String filePath = directoryPath + File.separator + "stops.txt";
         File file = new File(filePath);
 
@@ -202,9 +207,9 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    private void importRouteTypes(String directoryPath){
+    /*private void importRouteTypes(String directoryPath){
         String filePath = directoryPath + File.separator + "route_types.txt";
         File file = new File(filePath);
 
@@ -226,9 +231,9 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    private void importRoutes(String directoryPath){
+   /* private void importRoutes(String directoryPath){
         String filePath = directoryPath + File.separator + "routes.txt";
         File file = new File(filePath);
 
@@ -255,52 +260,48 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    /**
-     * Temporary method to create sample vehicles in database
-     * @param id
-     */
-    private void createSampleVehicle(long id){
+    /*private void createSampleVehicle(long id){
         Vehicle vehicle = new Vehicle(id, 50.0, 50.0,0L,null, tripRepository.findByVehicleId(id));
         vehicleRepository.save(vehicle);
-    }
+    }*/
 
-    private void importTrips(String directoryPath){
-        String filePath = directoryPath + File.separator + "trips.txt";
-        File file = new File(filePath);
+//    private void importTrips(String directoryPath){
+//        String filePath = directoryPath + File.separator + "trips.txt";
+//        File file = new File(filePath);
+//
+//        List<Trip> tripList = new LinkedList<>();
+//
+//        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+//            String line;
+//            reader.readLine();
+//            while ((line = reader.readLine()) != null) {
+//                String[] values = line.split(",");
+//
+//                Optional<Route> optionalRoute = routeRepository.findById(values[0]);
+//                Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
+//                if(optionalVehicle.isEmpty()){
+//                    createSampleVehicle(Long.parseLong(values[7]));
+//                    optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
+//                }
+//                if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
+//                    Trip trip = new Trip(values[2], values[3].replaceAll("\"", ""), Integer.parseInt(values[4]),
+//                            optionalRoute.get(), optionalVehicle.get(),
+//                            accidentRepository.findByTripId(values[2]),
+//                            stopTimeRepository.findByTripId(values[2]));
+//
+//                    tripList.add(trip);
+//                }
+//            }
+//            tripRepository.saveAll(tripList);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-        List<Trip> tripList = new LinkedList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
-
-                Optional<Route> optionalRoute = routeRepository.findById(values[0]);
-                Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
-                if(optionalVehicle.isEmpty()){
-                    createSampleVehicle(Long.parseLong(values[7]));
-                    optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
-                }
-                if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
-                    Trip trip = new Trip(values[2], values[3].replaceAll("\"", ""), Integer.parseInt(values[4]),
-                            optionalRoute.get(), optionalVehicle.get(),
-                            accidentRepository.findByTripId(values[2]),
-                            stopTimeRepository.findByTripId(values[2]));
-
-                    tripList.add(trip);
-                }
-            }
-            tripRepository.saveAll(tripList);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void importStopTimes(String directoryPath){
+    /*private void importStopTimes(String directoryPath){
         String filePath = directoryPath + File.separator + "stop_times.txt";
         File file = new File(filePath);
 
@@ -327,6 +328,76 @@ public class DataImportService {
                 }
             }
             stopTimeRepository.saveAll(stopTimeList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    private void importTripDestinationNew(){
+        String filePath = outputPath + "trip_destination.txt";
+        File file = new File(filePath);
+
+        List<TripDestination> tripDestinationList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                TripDestination tripDestination = new TripDestination(Long.parseLong(values[0]), values[1],
+                        tripRepository.findAllByTripDestinationId(Long.parseLong(values[0])));
+
+                tripDestinationList.add(tripDestination);
+            }
+            tripDestinationRepository.saveAll(tripDestinationList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importRouteTypeNew(){
+        String filePath = outputPath + "route_type.txt";
+        File file = new File(filePath);
+
+        List<RouteType> routeTypeList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                RouteType routeType = new RouteType(values[0], values[1], routeRepository.findByRouteTypeId(values[0]));
+
+                routeTypeList.add(routeType);
+            }
+            routeTypeRepository.saveAll(routeTypeList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importRouteNew(){
+        String filePath = outputPath + "route.txt";
+        File file = new File(filePath);
+
+        List<Route> routeList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Route route = new Route(values[0], routeTypeRepository.findById(values[1]), tripRepository.findByRouteId(values[0]));
+
+                routeList.add(route);
+            }
+            routeRepository.saveAll(routeList);
 
         } catch (IOException e) {
             e.printStackTrace();

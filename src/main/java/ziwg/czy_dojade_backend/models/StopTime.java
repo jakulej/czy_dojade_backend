@@ -22,19 +22,16 @@ public class StopTime {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "arrival_time")
-    private LocalTime arrivalTime;
+    @Column(name = "arrival_delay")
+    private LocalTime arrivalDelay;
 
-    @Column(name = "departure_time")
-    private LocalTime departureTime;
+    @Column(name = "departure_delay")
+    private LocalTime departureDelay;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "stop_id")
+    @JoinColumn(name = "schedule_stoptime_id")
     @JsonIgnore
-    private Stop stop;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Trip trip;
+    private ScheduleStopTime scheduleStopTime;
 
 }
 

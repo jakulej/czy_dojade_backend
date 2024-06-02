@@ -25,7 +25,7 @@ public class DataImportController {
     )
     @PostMapping("/processZip")
     public ResponseEntity<String> importGTFS() {
-        return new ResponseEntity<>(dataImportService.processZip(), HttpStatus.OK);
+        return new ResponseEntity<>(dataImportService.importGTFSData(), HttpStatus.OK);
     }
 
     @GetMapping("/importCoords")

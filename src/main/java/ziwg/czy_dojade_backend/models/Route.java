@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -16,23 +17,14 @@ import java.util.List;
 public class Route {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private String id;
-
-    @Column(name = "short_name")
-    private String shortName;
-
-    @Column(name = "description")
-    private String description;
-
-    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Trip> trips;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "route_type_id")
     @JsonIgnore
     private RouteType routeType;
 
+    @OneToMany(mappedBy = "route")
+    private List<Trip> trips;
 }
