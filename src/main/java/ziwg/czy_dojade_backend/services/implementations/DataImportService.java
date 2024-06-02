@@ -32,6 +32,7 @@ public class DataImportService {
 
     private final TripDestinationRepository tripDestinationRepository;
     private final ScheduleStopTimeRepository scheduleStopTimeRepository;
+    private final RouteStopRepository routeStopRepository;
 
     private final String resourcesDirectory = getClass().getResource("/").getPath();
     private final String extractPath = resourcesDirectory + "GTFS";
@@ -414,6 +415,33 @@ public class DataImportService {
         }
     }
 
+    private void importScheduleStopTimeNew(){
+        String filePath = outputPath + "schedule_stop_time.txt";
+        File file = new File(filePath);
+
+        List<ScheduleStopTime> scheduleStopTimeList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                Optional<Stop> stop = stopRepository.findById(Long.valueOf(values[3]));
+                Optional<Trip> trip = tripRepository.findById(values[4]);
+                if(trip.isPresent() && stop.isPresent()){
+                    ScheduleStopTime scheduleStopTime = new ScheduleStopTime(Long.parseLong(values[0]),
+                            LocalTime.parse(values[1]), LocalTime.parse(values[2]), stop.get(), trip.get());
+
+                    scheduleStopTimeList.add(scheduleStopTime);
+                }
+            }
+            scheduleStopTimeRepository.saveAll(scheduleStopTimeList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void importRouteTypeNew(){
         String filePath = outputPath + "route_type.txt";
         File file = new File(filePath);
@@ -454,6 +482,33 @@ public class DataImportService {
                 routeList.add(route);
             }
             routeRepository.saveAll(routeList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importRouteStopNew(){
+        String filePath = outputPath + "route_stop.txt";
+        File file = new File(filePath);
+
+        List<RouteStop> routeStopList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Optional<Route> route = routeRepository.findById(values[1]);
+                Optional<Stop> stop = stopRepository.findById(Long.valueOf(values[2]));
+                if(route.isPresent() && stop.isPresent()){
+                    RouteStop routeStop = new RouteStop(Long.parseLong(values[0]), route.get(), stop.get(), Long.parseLong(values[3]));
+
+                    routeStopList.add(routeStop);
+                }
+            }
+            routeStopRepository.saveAll(routeStopList);
 
         } catch (IOException e) {
             e.printStackTrace();
