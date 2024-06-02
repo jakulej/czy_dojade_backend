@@ -31,6 +31,7 @@ public class DataImportService {
     private final AccidentRepository accidentRepository;
 
     private final TripDestinationRepository tripDestinationRepository;
+    private final ScheduleStopTimeRepository scheduleStopTimeRepository;
 
     private final String resourcesDirectory = getClass().getResource("/").getPath();
     private final String extractPath = resourcesDirectory + "GTFS";
@@ -334,6 +335,31 @@ public class DataImportService {
         }
     }*/
 
+
+    private void importStopsNew(){
+        String filePath = outputPath + "stop.txt";
+        File file = new File(filePath);
+
+        List<Stop> stopList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                Stop stop = new Stop(Long.parseLong(values[0]), values[1], values[2],
+                        Double.parseDouble(values[3]), Double.parseDouble(values[4]),
+                        scheduleStopTimeRepository.findAllByStopId(Long.parseLong(values[0])));
+
+                stopList.add(stop);
+            }
+            stopRepository.saveAll(stopList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void importTripDestinationNew(){
         String filePath = outputPath + "trip_destination.txt";
         File file = new File(filePath);
@@ -352,6 +378,36 @@ public class DataImportService {
                 tripDestinationList.add(tripDestination);
             }
             tripDestinationRepository.saveAll(tripDestinationList);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void importTripNew(){
+        String filePath = outputPath + "trip.txt";
+        File file = new File(filePath);
+
+        List<Trip> tripList = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                Optional<TripDestination> tripDestination = tripDestinationRepository.findById(Long.valueOf(values[4]));
+                Optional<Route> route = routeRepository.findById(values[2]);
+                Optional<Vehicle> vehicle = vehicleRepository.findById(Long.valueOf(values[3]));
+
+                if(tripDestination.isPresent() && vehicle.isPresent() && route.isPresent()){
+                    Trip trip = new Trip(values[0], tripDestination.get(),
+                            Integer.parseInt(values[1]),route.get() , vehicle.get(),
+                            accidentRepository.findByTripId(values[0]));
+
+                    tripList.add(trip);
+                }
+            }
+            tripRepository.saveAll(tripList);
 
         } catch (IOException e) {
             e.printStackTrace();

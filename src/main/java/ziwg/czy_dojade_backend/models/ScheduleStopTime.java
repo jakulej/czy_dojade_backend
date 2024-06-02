@@ -15,7 +15,7 @@ import java.time.LocalTime;
 public class ScheduleStopTime {
     @Id
     @Column(name = "id")
-    private String id;
+    private long id;
 
     @Column(name = "arrival_time")
     private LocalTime arrivalTime;
