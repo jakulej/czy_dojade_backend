@@ -5,10 +5,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ziwg.czy_dojade_backend.dtos.VehicleDto;
 import ziwg.czy_dojade_backend.services.implementations.DataImportService;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -25,5 +29,15 @@ public class DataImportController {
     @PostMapping("/processZip")
     public ResponseEntity<String> importGTFS() {
         return new ResponseEntity<>(dataImportService.processZip(), HttpStatus.OK);
+    }
+
+    @GetMapping("/importCoords")
+    public ResponseEntity<String> importVehicleCoordinates() {
+        return new ResponseEntity<>(dataImportService.importVehicleCoordinates(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vehicles")
+    public ResponseEntity<List<VehicleDto>> getVehicles() {
+        return new ResponseEntity<>(dataImportService.getVehicles(), HttpStatus.OK);
     }
 }

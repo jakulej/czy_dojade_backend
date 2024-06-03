@@ -1,20 +1,22 @@
 package ziwg.czy_dojade_backend.services.implementations;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import ziwg.czy_dojade_backend.dtos.VehicleDto;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
 
 import java.io.*;
 import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -88,33 +90,116 @@ public class DataImportService {
         }
     }
 
-    private void importVehicles() {
-        // Create RestTemplate instance
-        RestTemplate restTemplate = new RestTemplateBuilder().build();
-        // URL of the CSV file
-        String url = "https://www.wroclaw.pl/open-data/datastore/dump/17308285-3977-42f7-81b7-fdd168c210a2";
+    public File getFileWithCoordinates() {
+        String apiUrl = "https://czynaczas.pl/api/wroclaw/single-live-vehicle/premium/2769e83f-fd5e-4669-b5fd-59ce08f56144";
+        WebClient webClient = WebClient.create();
+        
+        Mono<byte[]> responseMono = webClient.get()
+                .uri(apiUrl)
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .bodyToMono(byte[].class);
 
-        // Make GET request and retrieve CSV as String
-        String csvContent = restTemplate.getForObject(url, String.class);
+        byte[] fileBytes = responseMono.block();
 
-        // Parse CSV content using OpenCSV
-        try (CSVReader csvReader = new CSVReader(new StringReader(csvContent))) {
-            List<String[]> rows = csvReader.readAll();
+        if (fileBytes != null) {
+            try {
+                File tempFile = File.createTempFile("tempFile", ".tmp");
 
-            // Ignore the first row
-            if (!rows.isEmpty()) {
-                rows.remove(0);
+                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                    fos.write(fileBytes);
+                }
+                return tempFile;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
             }
-
-            // Print each row
-            for (String[] row : rows) {
-                System.out.println(row[3]);
-            }
-        } catch (CsvException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } else {
+            System.out.println("Error: Received null byte array from the API");
+            return null;
         }
+    }
+
+    public String importVehicleCoordinates() {
+        List<Vehicle> vehicles = new LinkedList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        File jsonFile = getFileWithCoordinates();
+        try {
+            Map<String, Map<String, Object>> dataMap = objectMapper.readValue(jsonFile, Map.class);
+            // Access the nested data
+            Map<String, Object> innerMap = dataMap.get("data");
+            for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
+                // vehicleJson - each vehicle in json with vehicles
+                String vehicleJson = objectMapper.writeValueAsString(entry.getValue());
+                // Parse vehicleJson to extract key-value pairs
+                JsonNode jsonNode = objectMapper.readTree(vehicleJson);
+                Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
+                Vehicle vehicle = new Vehicle();
+                Optional<Vehicle> existingVehicleOpt = null;
+                while (fieldsIterator.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fieldsIterator.next();
+                    String key = field.getKey();
+                    JsonNode value = field.getValue();
+                    if ("id".equals(key)) {
+                        String id = value.asText();
+                        String[] parts = id.split("/");
+                        int idInt = Integer.parseInt(parts[1]);
+                        existingVehicleOpt = vehicleRepository.findById(vehicle.getId());
+                        vehicle.setId(idInt);
+                    }
+                    if ("lat".equals(key)) {
+                        double lat = value.asDouble();
+                        vehicle.setCurrLatitude(lat);
+                    }
+                    if ("lon".equals(key)) {
+                        double lon = value.asDouble();
+                        vehicle.setCurrLongitude(lon);
+                    }
+                    if ("trip_id".equals(key)) {
+                        String tripId = value.asText();
+                        vehicle.setTrip(tripRepository.findAllById(tripId));
+                    }
+                    if ("delay".equals(key)) {
+                        long delay = value.asLong();
+                        vehicle.setDelay(delay);
+                    }
+                    if ("type".equals(key)) {
+                        long type = value.asLong();
+                        vehicle.setType(type);
+                    }
+                }
+                if (vehicle.getDelay() == null)
+                    vehicle.setDelay(0L);
+                if (existingVehicleOpt.isPresent()) {
+                    Vehicle existingVehicle = existingVehicleOpt.get();
+                    existingVehicle.setCurrLatitude(vehicle.getCurrLatitude());
+                    existingVehicle.setCurrLongitude(vehicle.getCurrLongitude());
+                    existingVehicle.setType(vehicle.getType());
+                    existingVehicle.setTrip(vehicle.getTrip());
+                    existingVehicle.setDelay(vehicle.getDelay());
+                    vehicles.add(existingVehicle);
+                }
+                else {
+                    vehicles.add(vehicle);
+                }
+            }
+            vehicleRepository.saveAll(vehicles);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "Imported from czynaczas.pl";
+    }
+
+    public List<VehicleDto> getVehicles(){
+        List<VehicleDto> vehicleDtos = new LinkedList<>();
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        for (Vehicle vehicle:vehicles) {
+            VehicleDto vehicleDto = new VehicleDto(vehicle.getCurrLatitude(), vehicle.getCurrLongitude());
+            vehicleDtos.add(vehicleDto);
+        }
+        return vehicleDtos;
     }
 
     private void importStops(String directoryPath){
@@ -200,7 +285,7 @@ public class DataImportService {
      * @param id
      */
     private void createSampleVehicle(long id){
-        Vehicle vehicle = new Vehicle(id, 50.0, 50.0, tripRepository.findByVehicleId(id));
+        Vehicle vehicle = new Vehicle(id, 50.0, 50.0,0L,null, tripRepository.findByVehicleId(id));
         vehicleRepository.save(vehicle);
     }
 

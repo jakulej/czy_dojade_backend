@@ -25,6 +25,12 @@ public class Vehicle {
     @Column(name = "curr_longitude")
     private double currLongitude;
 
+    @Column(name = "delay")
+    private Long delay;
+
+    @Column(name = "type")
+    private Long type;
+
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Trip> trip;
 

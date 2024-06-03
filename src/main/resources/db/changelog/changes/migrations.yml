@@ -360,3 +360,17 @@ databaseChangeLog:
                         defaultValue: 'USER'
                         constraints:
                             nullable: false
+
+    - changeSet:
+        id: add_delay_column_vehicle
+        author: Maciej
+        changes:
+          - addColumn:
+              tableName: vehicle
+              columns:
+                - column:
+                    name: delay
+                    type: bigserial
+                - column:
+                    name: type
+                    type: bigserial
