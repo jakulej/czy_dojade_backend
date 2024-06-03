@@ -205,7 +205,7 @@ public class AppUserService implements IAppUserService
         AccidentDto accidentDto = new AccidentDto();
         accidentDto.setAccLatitude(accident.getAccLatitude());
         accidentDto.setAccLongitude(accident.getAccLongitude());
-        accidentDto.setTripHeadsign(accident.getTrip().getTripHeadsign());
+        accidentDto.setTripHeadsign(accident.getTrip().getTripDestination().getTripHeadsign());
 
         ReportDetailsDTO output = new ReportDetailsDTO();
         output.setDescription(report.getDescription());
