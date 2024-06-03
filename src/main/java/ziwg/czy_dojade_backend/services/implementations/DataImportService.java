@@ -135,10 +135,18 @@ public class DataImportService {
                 JsonNode jsonNode = objectMapper.readTree(vehicleJson);
                 Iterator<Map.Entry<String, JsonNode>> fieldsIterator = jsonNode.fields();
                 Vehicle vehicle = new Vehicle();
+                Optional<Vehicle> existingVehicleOpt = null;
                 while (fieldsIterator.hasNext()) {
                     Map.Entry<String, JsonNode> field = fieldsIterator.next();
                     String key = field.getKey();
                     JsonNode value = field.getValue();
+                    if ("id".equals(key)) {
+                        String id = value.asText();
+                        String[] parts = id.split("/");
+                        int idInt = Integer.parseInt(parts[1]);
+                        existingVehicleOpt = vehicleRepository.findById(vehicle.getId());
+                        vehicle.setId(idInt);
+                    }
                     if ("lat".equals(key)) {
                         double lat = value.asDouble();
                         vehicle.setCurrLatitude(lat);
@@ -146,12 +154,6 @@ public class DataImportService {
                     if ("lon".equals(key)) {
                         double lon = value.asDouble();
                         vehicle.setCurrLongitude(lon);
-                    }
-                    if ("id".equals(key)) {
-                        String id = value.asText();
-                        String[] parts = id.split("/");
-                        int idInt = Integer.parseInt(parts[1]);
-                        vehicle.setId(idInt);
                     }
                     if ("trip_id".equals(key)) {
                         String tripId = value.asText();
@@ -168,8 +170,18 @@ public class DataImportService {
                 }
                 if (vehicle.getDelay() == null)
                     vehicle.setDelay(0L);
-
-                vehicles.add(vehicle);
+                if (existingVehicleOpt.isPresent()) {
+                    Vehicle existingVehicle = existingVehicleOpt.get();
+                    existingVehicle.setCurrLatitude(vehicle.getCurrLatitude());
+                    existingVehicle.setCurrLongitude(vehicle.getCurrLongitude());
+                    existingVehicle.setType(vehicle.getType());
+                    existingVehicle.setTrip(vehicle.getTrip());
+                    existingVehicle.setDelay(vehicle.getDelay());
+                    vehicles.add(existingVehicle);
+                }
+                else {
+                    vehicles.add(vehicle);
+                }
             }
             vehicleRepository.saveAll(vehicles);
         } catch (IOException e) {
