@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import ziwg.czy_dojade_backend.dtos.VehicleDto;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
@@ -189,6 +190,16 @@ public class DataImportService {
         }
 
         return "Imported from czynaczas.pl";
+    }
+
+    public List<VehicleDto> getVehicles(){
+        List<VehicleDto> vehicleDtos = new LinkedList<>();
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        for (Vehicle vehicle:vehicles) {
+            VehicleDto vehicleDto = new VehicleDto(vehicle.getCurrLatitude(), vehicle.getCurrLongitude());
+            vehicleDtos.add(vehicleDto);
+        }
+        return vehicleDtos;
     }
 
     private void importStops(String directoryPath){
