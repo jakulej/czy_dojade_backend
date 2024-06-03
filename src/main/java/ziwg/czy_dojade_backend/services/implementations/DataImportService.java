@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -120,6 +121,7 @@ public class DataImportService {
         }
     }
 
+    @Scheduled(fixedRate = 10000)
     public String importVehicleCoordinates() {
         List<Vehicle> vehicles = new LinkedList<>();
         ObjectMapper objectMapper = new ObjectMapper();
