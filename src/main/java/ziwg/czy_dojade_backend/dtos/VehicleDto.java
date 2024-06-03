@@ -17,4 +17,8 @@ public class VehicleDto {
     @NotNull
     @Schema(description = "Vehicle's id.")
     private double currLongitude;
+
+    private Long delay;
+
+    private Long type;
 }

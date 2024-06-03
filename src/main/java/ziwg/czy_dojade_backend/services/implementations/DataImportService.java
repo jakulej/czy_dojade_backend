@@ -198,7 +198,7 @@ public class DataImportService {
         List<VehicleDto> vehicleDtos = new LinkedList<>();
         List<Vehicle> vehicles = vehicleRepository.findAll();
         for (Vehicle vehicle:vehicles) {
-            VehicleDto vehicleDto = new VehicleDto(vehicle.getCurrLatitude(), vehicle.getCurrLongitude());
+            VehicleDto vehicleDto = new VehicleDto(vehicle.getCurrLatitude(), vehicle.getCurrLongitude(), vehicle.getDelay(), vehicle.getType());
             vehicleDtos.add(vehicleDto);
         }
         return vehicleDtos;
