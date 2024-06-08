@@ -1,6 +1,5 @@
 package ziwg.czy_dojade_backend.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +31,6 @@ public class Trip {
 
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
     private Vehicle vehicle;
 
     @OneToOne(mappedBy = "trip", cascade = CascadeType.REMOVE, orphanRemoval = true)

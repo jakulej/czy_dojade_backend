@@ -1,5 +1,6 @@
 package ziwg.czy_dojade_backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class Stop {
     private double longitude;
 
     @OneToMany(mappedBy = "stop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<StopTime> stopTimes;
 
 }

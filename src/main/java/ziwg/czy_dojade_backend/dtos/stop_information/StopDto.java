@@ -1,4 +1,4 @@
-package ziwg.czy_dojade_backend.dtos;
+package ziwg.czy_dojade_backend.dtos.stop_information;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
