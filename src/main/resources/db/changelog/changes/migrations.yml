@@ -374,3 +374,34 @@ databaseChangeLog:
                 - column:
                     name: type
                     type: bigserial
+
+    - changeSet:
+        id: change_vehicle_id_type
+        author: Kuba
+        changes:
+          - dropColumn:
+              columnName: vehicle_id
+              tableName: trip
+          - dropColumn:
+              columnName: id
+              tableName: vehicle
+          - addColumn:
+              tableName: vehicle
+              columns:
+                - column:
+                    name: id
+                    type: varchar(50)
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+          - addColumn:
+              tableName: trip
+              columns:
+                - column:
+                    name: vehicle_id
+                    type: varchar(50)
+                    constraints:
+                      nullable: false
+                      foreignKeyName: fk_trip_vehicle
+                      referencedTableName: vehicle
+                      referencedColumnNames: id

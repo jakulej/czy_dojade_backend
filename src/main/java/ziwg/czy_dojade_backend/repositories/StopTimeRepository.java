@@ -13,5 +13,6 @@ public interface StopTimeRepository extends JpaRepository<StopTime, Long> {
     List<StopTime> findByStopId(long id);
 
     List<StopTime> findByTripId(String id);
+    List<StopTime> findAllByStopId(long id);
 
 }

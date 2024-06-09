@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import ziwg.czy_dojade_backend.dtos.VehicleDto;
 import ziwg.czy_dojade_backend.models.*;
 import ziwg.czy_dojade_backend.repositories.*;
 import ziwg.czy_dojade_backend.utils.DateTimeAndTimeParser;
@@ -122,7 +120,7 @@ public class DataImportService {
     }
 
     @Scheduled(fixedRate = 10000)
-    public String importVehicleCoordinates() {
+    public void importVehicleCoordinates() {
         List<Vehicle> vehicles = new LinkedList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -145,10 +143,9 @@ public class DataImportService {
                     JsonNode value = field.getValue();
                     if ("id".equals(key)) {
                         String id = value.asText();
-                        String[] parts = id.split("/");
-                        int idInt = Integer.parseInt(parts[1]);
-                        existingVehicleOpt = vehicleRepository.findById(vehicle.getId());
-                        vehicle.setId(idInt);
+                        if(vehicleRepository.existsById(id))
+                            existingVehicleOpt = vehicleRepository.findById(id);
+                        vehicle.setId(id);
                     }
                     if ("lat".equals(key)) {
                         double lat = value.asDouble();
@@ -173,7 +170,7 @@ public class DataImportService {
                 }
                 if (vehicle.getDelay() == null)
                     vehicle.setDelay(0L);
-                if (existingVehicleOpt.isPresent()) {
+                if (existingVehicleOpt != null && existingVehicleOpt.isPresent()) {
                     Vehicle existingVehicle = existingVehicleOpt.get();
                     existingVehicle.setCurrLatitude(vehicle.getCurrLatitude());
                     existingVehicle.setCurrLongitude(vehicle.getCurrLongitude());
@@ -190,18 +187,7 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return "Imported from czynaczas.pl";
-    }
-
-    public List<VehicleDto> getVehicles(){
-        List<VehicleDto> vehicleDtos = new LinkedList<>();
-        List<Vehicle> vehicles = vehicleRepository.findAll();
-        for (Vehicle vehicle:vehicles) {
-            VehicleDto vehicleDto = new VehicleDto(vehicle.getCurrLatitude(), vehicle.getCurrLongitude(), vehicle.getDelay(), vehicle.getType());
-            vehicleDtos.add(vehicleDto);
-        }
-        return vehicleDtos;
+        System.out.println("Updated from czynaczas.pl");
     }
 
     private void importStops(String directoryPath){
@@ -227,6 +213,7 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Stops imported");
     }
 
     private void importRouteTypes(String directoryPath){
@@ -251,6 +238,7 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Route types imported");
     }
 
     private void importRoutes(String directoryPath){
@@ -280,84 +268,86 @@ public class DataImportService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Routes imported");
     }
 
     /**
      * Temporary method to create sample vehicles in database
      * @param id
      */
-    private void createSampleVehicle(long id){
-        Vehicle vehicle = new Vehicle(id, 50.0, 50.0,0L,null, tripRepository.findByVehicleId(id));
-        vehicleRepository.save(vehicle);
-    }
-
-    private void importTrips(String directoryPath){
-        String filePath = directoryPath + File.separator + "trips.txt";
-        File file = new File(filePath);
-
-        List<Trip> tripList = new LinkedList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
-
-                Optional<Route> optionalRoute = routeRepository.findById(values[0]);
-                Optional<Vehicle> optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
-                if(optionalVehicle.isEmpty()){
-                    createSampleVehicle(Long.parseLong(values[7]));
-                    optionalVehicle = vehicleRepository.findById(Long.valueOf(values[7]));
-                }
-                if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
-                    Trip trip = new Trip(values[2], values[3].replaceAll("\"", ""), Integer.parseInt(values[4]),
-                            optionalRoute.get(), optionalVehicle.get(),
-                            accidentRepository.findByTripId(values[2]),
-                            stopTimeRepository.findByTripId(values[2]));
-
-                    tripList.add(trip);
-                }
-            }
-            tripRepository.saveAll(tripList);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        private void createSampleVehicle (String id){
+            Vehicle vehicle = new Vehicle(id, 50.0, 50.0,0L,0L, tripRepository.findByVehicleId(id));
+            vehicleRepository.save(vehicle);
         }
-    }
 
-    private void importStopTimes(String directoryPath){
-        String filePath = directoryPath + File.separator + "stop_times.txt";
-        File file = new File(filePath);
+        private void importTrips (String directoryPath){
+            String filePath = directoryPath + File.separator + "trips.txt";
+            File file = new File(filePath);
 
-        List<StopTime> stopTimeList = new LinkedList<>();
+            List<Trip> tripList = new LinkedList<>();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                reader.readLine();
+                while ((line = reader.readLine()) != null) {
+                    String[] values = line.split(",");
 
-                Optional<Stop> optionalStop = stopRepository.findById(Long.valueOf(values[3]));
-                Optional<Trip> optionalTrip = tripRepository.findById(values[0]);
-                if (optionalStop.isPresent() && optionalTrip.isPresent()) {
-                    LocalTime arrive = DateTimeAndTimeParser.parseTime(values[1]);
-                    LocalTime departure = DateTimeAndTimeParser.parseTime(values[2]);
-                    StopTime stopTime = new StopTime();
-                    stopTime.setArrivalTime(arrive);
-                    stopTime.setDepartureTime(departure);
-                    stopTime.setStop(optionalStop.get());
-                    stopTime.setTrip(optionalTrip.get());
+                    Optional<Route> optionalRoute = routeRepository.findById(values[0]);
+                    Optional<Vehicle> optionalVehicle = vehicleRepository.findById(String.valueOf(values[7]));
+                    if (optionalVehicle.isEmpty()) {
+                        createSampleVehicle(String.valueOf(values[7]));
+                        optionalVehicle = vehicleRepository.findById(String.valueOf(values[7]));
+                    }
+                    if (optionalVehicle.isPresent() && optionalRoute.isPresent()) {
+                        Trip trip = new Trip(values[2], values[3].replaceAll("\"", ""), Integer.parseInt(values[4]),
+                                optionalRoute.get(), optionalVehicle.get(),
+                                accidentRepository.findByTripId(values[2]),
+                                stopTimeRepository.findByTripId(values[2]));
 
-                    stopTimeList.add(stopTime);
+                        tripList.add(trip);
+                    }
                 }
+                tripRepository.saveAll(tripList);
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            stopTimeRepository.saveAll(stopTimeList);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Trips imported");
         }
-    }
 
+        private void importStopTimes (String directoryPath){
+            String filePath = directoryPath + File.separator + "stop_times.txt";
+            File file = new File(filePath);
+
+            List<StopTime> stopTimeList = new LinkedList<>();
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                reader.readLine();
+                while ((line = reader.readLine()) != null) {
+                    String[] values = line.split(",");
+
+                    Optional<Stop> optionalStop = stopRepository.findById(Long.valueOf(values[3]));
+                    Optional<Trip> optionalTrip = tripRepository.findById(values[0]);
+                    if (optionalStop.isPresent() && optionalTrip.isPresent()) {
+                        LocalTime arrive = DateTimeAndTimeParser.parseTime(values[1]);
+                        LocalTime departure = DateTimeAndTimeParser.parseTime(values[2]);
+                        StopTime stopTime = new StopTime();
+                        stopTime.setArrivalTime(arrive);
+                        stopTime.setDepartureTime(departure);
+                        stopTime.setStop(optionalStop.get());
+                        stopTime.setTrip(optionalTrip.get());
+
+                        stopTimeList.add(stopTime);
+                    }
+                }
+                stopTimeRepository.saveAll(stopTimeList);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Stop times imported");
+        }
 }
 
 

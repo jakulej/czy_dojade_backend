@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 
@@ -30,18 +29,10 @@ public class StopTime {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stop_id")
-    @JsonIgnore
     private Stop stop;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     private Trip trip;
 
 }
-
-
-
-
-
-
-
-
